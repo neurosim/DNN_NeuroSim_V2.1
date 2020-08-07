@@ -6,7 +6,7 @@ This is the released version 2.1 (Aug 10, 2020) for the tool.
 
 This V2.1 has **_improved following estimation_**:
 ```
-1. Calibrate FinFET technology library, temperature-related features.
+1. Calibrate FinFET technology library: temperature-related features.
 ```
 
 This version has also added **_new features into inference accuracy estimation_**:
