@@ -70,7 +70,8 @@ void NewSwitchMatrix::Initialize(int _numOutput, double _activityRowRead, double
 	dff.Initialize(numOutput, clkFreq); 
 	widthTgN = MIN_NMOS_SIZE * tech.featureSize;
 	widthTgP = tech.pnSizeRatio * MIN_NMOS_SIZE * tech.featureSize;
-
+	resTg = CalculateOnResistance(widthTgN, NMOS, inputParameter.temperature, tech)/2;
+	
 	initialized = true;
 }
 
@@ -114,7 +115,7 @@ void NewSwitchMatrix::CalculateArea(double _newHeight, double _newWidth, AreaMod
 			    break;
 		    default:    // NONE
 			    break;
-	}
+		}
 
 	// Capacitance
 	// TG
@@ -171,7 +172,7 @@ void NewSwitchMatrix::CalculatePower(double numRead, double numWrite, double act
 		// Read dynamic energy
 		readDynamicEnergy += (capTgDrain * 2) * cell.accessVoltage * cell.accessVoltage * numOutput * activityRowRead;   // 1 TG pass Vaccess to CMOS gate to select the row
 		readDynamicEnergy += (capTgDrain * 5) * cell.readVoltage * cell.readVoltage * numOutput * activityRowRead;    // 2 TG pass Vread to BL, total loading is 5 Tg Drain capacitance
-		readDynamicEnergy += (capTgGateN + capTgGateP + capLoad) * 3 * tech.vdd * tech.vdd * numOutput * activityRowRead;    // open 3 TG when selected
+		readDynamicEnergy += (capTgGateN + capTgGateP) * 3 * tech.vdd * tech.vdd * numOutput * activityRowRead;    // open 3 TG when selected
 
 		readDynamicEnergy *= numRead;
 		readDynamicEnergy += dff.readDynamicEnergy;
@@ -181,11 +182,11 @@ void NewSwitchMatrix::CalculatePower(double numRead, double numWrite, double act
 		// connect to rows, when writing, pass GND to BL, no transmission energy acrossing BL
 		writeDynamicEnergy += (capTgDrain * 2) * cell.accessVoltage * cell.accessVoltage;    // 1 TG pass Vaccess to CMOS gate to select the row
 		writeDynamicEnergy += (capTgGateN + capTgGateP) * 2 * tech.vdd * tech.vdd * 2;    // open 2 TG when Q selected, and *2 means switching from one selected row to another
-        writeDynamicEnergy += (capTgGateN + capTgGateP + capLoad) * tech.vdd * tech.vdd;    // always open one TG when writing		
+        writeDynamicEnergy += (capTgGateN + capTgGateP) * tech.vdd * tech.vdd;    // always open one TG when writing	
+		writeDynamicEnergy *= numWrite;
+		if (numWrite != 0)
+			writeDynamicEnergy += dff.readDynamicEnergy;	// Use DFF read energy here because no write in the DFF module
 	}
-	writeDynamicEnergy *= numWrite;
-	if (numWrite != 0)
-	    writeDynamicEnergy += dff.readDynamicEnergy;	// Use DFF read energy here because no write in the DFF module
 }
 
 
