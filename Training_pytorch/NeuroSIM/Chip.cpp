@@ -332,7 +332,7 @@ vector<vector<double> > ChipFloorPlan(bool findNumTile, bool findUtilization, bo
 	vector<vector<double> > tileLocaEachLayer;
 	vector<double> tileLocaEachLayerRow;
 	vector<double> tileLocaEachLayerCol;
-	double thisTileTotal;
+	double thisTileTotal = 0;
 	for (int i=0; i<netStructure.size(); i++) {
 		if (i==0) {
 			tileLocaEachLayerRow.push_back(0);
@@ -340,7 +340,7 @@ vector<vector<double> > ChipFloorPlan(bool findNumTile, bool findUtilization, bo
 		} else {
 			thisTileTotal += numTileEachLayer[0][i]*numTileEachLayer[1][i];
 			tileLocaEachLayerRow.push_back((int)thisTileTotal/(*numTileRow));
-			tileLocaEachLayerCol.push_back((int)thisTileTotal%(*numTileRow)-1);
+			tileLocaEachLayerCol.push_back((int)thisTileTotal%(*numTileRow));
 		}
 	}
 	tileLocaEachLayer.push_back(tileLocaEachLayerRow);
@@ -815,9 +815,9 @@ double ChipCalculatePerformance(Technology& tech, MemCell& cell, int layerNumber
 		double numBitToLoadOut = weightMatrixRow*param->numBitInput*numInVector;
 		double numBitToLoadIn = ceil(weightMatrixCol/param->numColPerSynapse)*param->numBitInput*numInVector/(netStructure[l][6]? 4:1);
 		
-		GhTree->CalculateLatency(0, 0, tileLocaEachLayer[0][l], tileLocaEachLayer[1][l], CMTileheight, CMTilewidth, (numBitToLoadOut+numBitToLoadIn)/(GhTree->busWidth/ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)));
-		GhTree->CalculatePower(0, 0, tileLocaEachLayer[0][l], tileLocaEachLayer[1][l], CMTileheight, CMTilewidth, (GhTree->busWidth/ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)), 
-							(numBitToLoadOut+numBitToLoadIn)/(GhTree->busWidth/ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)));
+		GhTree->CalculateLatency(0, 0, tileLocaEachLayer[0][l], tileLocaEachLayer[1][l], CMTileheight, CMTilewidth, (numBitToLoadOut+numBitToLoadIn)/(GhTree->busWidth*ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)));
+		GhTree->CalculatePower(0, 0, tileLocaEachLayer[0][l], tileLocaEachLayer[1][l], CMTileheight, CMTilewidth, (GhTree->busWidth*ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)), 
+							(numBitToLoadOut+numBitToLoadIn)/(GhTree->busWidth*ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)));
 		
 		globalBuffer->CalculateLatency(globalBuffer->interface_width, numBitToLoadOut/globalBuffer->interface_width,
 								globalBuffer->interface_width, numBitToLoadIn/globalBuffer->interface_width);
@@ -949,9 +949,9 @@ double ChipCalculatePerformance(Technology& tech, MemCell& cell, int layerNumber
 		double numBitToLoadOut = weightMatrixRow*param->numBitInput*numInVector/netStructure[l][3];
 		double numBitToLoadIn = ceil(weightMatrixCol/param->numColPerSynapse)*param->numBitInput*numInVector/(netStructure[l][6]? 4:1);
 		
-		GhTree->CalculateLatency(0, 0, tileLocaEachLayer[0][l], tileLocaEachLayer[1][l], NMTileheight, NMTilewidth, (numBitToLoadOut+numBitToLoadIn)/(GhTree->busWidth/ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)));
-		GhTree->CalculatePower(0, 0, tileLocaEachLayer[0][l], tileLocaEachLayer[1][l], NMTileheight, NMTilewidth, (GhTree->busWidth/ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)), 
-							(numBitToLoadOut+numBitToLoadIn)/(GhTree->busWidth/ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)));
+		GhTree->CalculateLatency(0, 0, tileLocaEachLayer[0][l], tileLocaEachLayer[1][l], NMTileheight, NMTilewidth, (numBitToLoadOut+numBitToLoadIn)/(GhTree->busWidth*ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)));
+		GhTree->CalculatePower(0, 0, tileLocaEachLayer[0][l], tileLocaEachLayer[1][l], NMTileheight, NMTilewidth, (GhTree->busWidth*ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)), 
+							(numBitToLoadOut+numBitToLoadIn)/(GhTree->busWidth*ceil((numTileEachLayer[0][l]*numTileEachLayer[1][l])/totalNumTile)));
 		
 		globalBuffer->CalculateLatency(globalBuffer->interface_width, numBitToLoadOut/globalBuffer->interface_width,
 								globalBuffer->interface_width, numBitToLoadIn/globalBuffer->interface_width);
