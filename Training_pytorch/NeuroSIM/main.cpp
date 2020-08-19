@@ -213,7 +213,7 @@ int main(int argc, char * argv[]) {
 		
 	ChipInitialize(inputParameter, tech, cell, netStructure, markNM, numTileEachLayer,
 					numPENM, desiredNumTileNM, desiredPESizeNM, desiredNumTileCM, desiredTileSizeCM, desiredPESizeCM, numTileRow, numTileCol, &numArrayWriteParallel);
-					
+	
 	double chipHeight, chipWidth, chipArea, chipAreaIC, chipAreaADC, chipAreaAccum, chipAreaOther, chipAreaWG, chipAreaArray;
 	double CMTileheight = 0;
 	double CMTilewidth = 0;
@@ -328,10 +328,12 @@ int main(int argc, char * argv[]) {
 		// show the detailed hardware performance for each layer
 		for (int i=0; i<netStructure.size(); i++) {
 			cout << "-------------------- Estimation of Layer " << i+1 << " ----------------------" << endl;
+			
 			param->activityRowReadWG = atof(argv[4*i+8]);
                         param->activityRowWriteWG = atof(argv[4*i+8]);
                         param->activityColWriteWG = atof(argv[4*i+8]);
-			ChipCalculatePerformance(tech, cell, i, argv[4*i+5], argv[4*i+6], argv[4*i+7], netStructure[i][6],
+			
+			ChipCalculatePerformance(inputParameter, tech, cell, i, argv[4*i+5], argv[4*i+6], argv[4*i+7], netStructure[i][6],
 						netStructure, markNM, numTileEachLayer, utilizationEachLayer, speedUpEachLayer, tileLocaEachLayer,
 						numPENM, desiredPESizeNM, desiredTileSizeCM, desiredPESizeCM, CMTileheight, CMTilewidth, NMTileheight, NMTilewidth, numArrayWriteParallel,
 						&layerReadLatency, &layerReadDynamicEnergy, &tileLeakage, &layerReadLatencyAG, &layerReadDynamicEnergyAG, &layerReadLatencyWG, &layerReadDynamicEnergyWG, 
@@ -484,10 +486,11 @@ int main(int argc, char * argv[]) {
 		vector<double> coreEnergyOtherPerLayer;
 		
 		for (int i=0; i<netStructure.size(); i++) {
-                        param->activityRowReadWG = atof(argv[4*i+8]);
-                        param->activityRowWriteWG = atof(argv[4*i+8]);
-                        param->activityColWriteWG = atof(argv[4*i+8]);
-			ChipCalculatePerformance(tech, cell, i, argv[4*i+5], argv[4*i+6], argv[4*i+7], netStructure[i][6],
+			
+            param->activityRowReadWG = atof(argv[4*i+8]);
+            param->activityRowWriteWG = atof(argv[4*i+8]);
+            param->activityColWriteWG = atof(argv[4*i+8]);
+			ChipCalculatePerformance(inputParameter, tech, cell, i, argv[4*i+5], argv[4*i+6], argv[4*i+7], netStructure[i][6],
 						netStructure, markNM, numTileEachLayer, utilizationEachLayer, speedUpEachLayer, tileLocaEachLayer,
 						numPENM, desiredPESizeNM, desiredTileSizeCM, desiredPESizeCM, CMTileheight, CMTilewidth, NMTileheight, NMTilewidth, numArrayWriteParallel,
 						&layerReadLatency, &layerReadDynamicEnergy, &tileLeakage, &layerReadLatencyAG, &layerReadDynamicEnergyAG, &layerReadLatencyWG, &layerReadDynamicEnergyWG, &layerWriteLatencyWU, &layerWriteDynamicEnergyWU,
@@ -726,12 +729,12 @@ int main(int argc, char * argv[]) {
 	}
 	
 	cout << "Energy Efficiency TOPS/W: " << numComputation/((chipReadDynamicEnergy+chipLeakageEnergy+chipReadDynamicEnergyAG+chipReadDynamicEnergyWG+chipWriteDynamicEnergyWU)*1e12) << endl;
-	cout << "Throughput FPS: " << 1/(chipReadLatency+chipReadLatencyAG+chipReadLatencyWG+chipWriteLatencyWU) << endl;
 	cout << "Throughput TOPS: " << numComputation/(chipReadLatency+chipReadLatencyAG+chipReadLatencyWG+chipWriteLatencyWU)*1e-12 << endl;
+	cout << "Throughput FPS: " << 1/(chipReadLatency+chipReadLatencyAG+chipReadLatencyWG+chipWriteLatencyWU) << endl;
 	cout << "--------------------------------------------------------------------------" << endl;
 	cout << "Peak Energy Efficiency TOPS/W: " << numComputation/((chipReadDynamicEnergyPeakFW+chipReadDynamicEnergyPeakAG+chipReadDynamicEnergyPeakWG+chipWriteDynamicEnergyPeakWU)*1e12) << endl;
-	cout << "Peak Throughput FPS: " << 1/(chipReadLatencyPeakFW+chipReadLatencyPeakAG+chipReadLatencyPeakWG+chipWriteLatencyPeakWU) << endl;
 	cout << "Peak Throughput TOPS: " << numComputation/(chipReadLatencyPeakFW+chipReadLatencyPeakAG+chipReadLatencyPeakWG+chipWriteLatencyPeakWU)*1e-12 << endl;
+	cout << "Peak Throughput FPS: " << 1/(chipReadLatencyPeakFW+chipReadLatencyPeakAG+chipReadLatencyPeakWG+chipWriteLatencyPeakWU) << endl;
 	
 	cout << "-------------------------------------- Hardware Performance Done --------------------------------------" <<  endl;
 	cout << endl;

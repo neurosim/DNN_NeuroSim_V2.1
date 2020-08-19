@@ -52,8 +52,8 @@
 using namespace std;
 
 /*** Functions ***/
-void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& cell, double _numPE, double _peSize);
-vector<double> TileCalculateArea(double numPE, double peSize, double *height, double *width);
+void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& cell, double _numPENM, double _peSizeNM, double _numPECM, double _peSizeCM);
+vector<double> TileCalculateArea(double numPE, double peSize, bool NMTile, double *height, double *width);
 void TileCalculatePerformance(const vector<vector<double> > &newMemory, const vector<vector<double> > &oldMemory, const vector<vector<double> > &inputVector, 
 			int novelMap, double numPE, double peSize, 
 			int speedUpRow, int speedUpCol, int weightMatrixRow, int weightMatrixCol, int numInVector, 
