@@ -4,11 +4,11 @@ The DNN+NeuroSim framework was developed by [Prof. Shimeng Yu's group](https://s
 
 This is the released version 2.1 (Aug 8, 2020) for the tool.
 
-:star: This V2.1 has **_improved following estimation_**:
+:star2: This V2.1 has **_improved following estimation_**:
 ```
 1. Calibrate FinFET technology library: temperature-related features.
 ```
-:star: This version has also added **_new features into inference accuracy estimation_**:
+:star2: This version has also added **_new features into inference accuracy estimation_**:
 ```
 1. Introduce VSA-bsaed MLSA (in addition to the original CSA-based MLSA)
 2. Introduce SAR ADC
@@ -31,7 +31,7 @@ The default example is VGG-8 for CIFAR-10 in this framework:
 
 Due to additional functions (of non-ideal properties) being implemented in the framework, please expect ~12 hours simulation time for whole training process (default network VGG-8 for CIFAR-10, with 256 epochs).  
 
-Developers: [Xiaochen Peng](mailto:xpeng76@gatech.edu), [Shanshi Huang](mailto:shuang406@gatech.edu).
+Developers: [Xiaochen Peng](mailto:xpeng76@gatech.edu) :two_women_holding_hands: [Shanshi Huang](mailto:shuang406@gatech.edu).
 
 This research is supported by NSF CAREER award, NSF/SRC E2CDA program, and ASCENT, one of the SRC/DARPA JUMP centers.
 
@@ -41,7 +41,7 @@ If you use the tool or adapt the tool in your work or publication, you are requi
 
 **_X. Peng, S. Huang, Y. Luo, X. Sun and S. Yu, ※DNN+NeuroSim: An End-to-End Benchmarking Framework for Compute-in-Memory Accelerators with Versatile Device Technologies, *§ IEEE International Electron Devices Meeting (IEDM)*, 2019._**
 
-If you have logistic questions or comments on the model, please contact [Prof. Shimeng Yu](mailto:shimeng.yu@ece.gatech.edu), and if you have technical questions or comments, please contact [Xiaochen Peng](mailto:xpeng76@gatech.edu) or [Shanshi Huang](mailto:shuang406@gatech.edu).
+If you have logistic questions or comments on the model, please contact :man: [Prof. Shimeng Yu](mailto:shimeng.yu@ece.gatech.edu), and if you have technical questions or comments, please contact :woman: [Xiaochen Peng](mailto:xpeng76@gatech.edu) or :woman: [Shanshi Huang](mailto:shuang406@gatech.edu).
 
 
 ## File lists
