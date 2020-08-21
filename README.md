@@ -4,12 +4,11 @@ The DNN+NeuroSim framework was developed by [Prof. Shimeng Yu's group](https://s
 
 This is the released version 2.1 (Aug 8, 2020) for the tool.
 
-This V2.1 has **_improved following estimation_**:
+:star: This V2.1 has **_improved following estimation_**:
 ```
 1. Calibrate FinFET technology library: temperature-related features.
 ```
-
-This version has also added **_new features into inference accuracy estimation_**:
+:star: This version has also added **_new features into inference accuracy estimation_**:
 ```
 1. Introduce VSA-bsaed MLSA (in addition to the original CSA-based MLSA)
 2. Introduce SAR ADC
