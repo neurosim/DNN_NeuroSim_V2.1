@@ -14,6 +14,13 @@ This version has also added **_new features into inference accuracy estimation_*
 1. Introduce VSA-bsaed MLSA (in addition to the original CSA-based MLSA)
 2. Introduce SAR ADC
 ```
+:point_right: :point_right: :point_right: **In "Param.cpp", to switch ADC mode:**
+```
+SARADC = false;           // false: MLSA            // true: sar ADC
+currentMode = true;       // false: MLSA use VSA    // true: MLSA use CSA
+```
+
+<br/>
 
 **_For estimation of inference engine, please visit released V1.2 [DNN+NeuroSim V1.2](https://github.com/neurosim/DNN_NeuroSim_V1.2)_**
 
