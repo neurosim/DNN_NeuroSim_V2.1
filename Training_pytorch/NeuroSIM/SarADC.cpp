@@ -95,11 +95,11 @@ void SarADC::CalculateArea(double heightArray, double widthArray, AreaModify _op
 		if (widthArray && _option==NONE) {
 			area = areaUnit * numCol;
 			width = widthArray;
-			height = areaUnit/widthArray;
+			height = area/widthArray;
 		} else if (heightArray && _option==NONE) {
 			area = areaUnit * numCol;
 			height = heightArray;
-			width = area / height;
+			width = area/height;
 		} else {
 			cout << "[MultilevelSenseAmp] Error: No width or height assigned for the multiSenseAmp circuit" << endl;
 			exit(-1);
