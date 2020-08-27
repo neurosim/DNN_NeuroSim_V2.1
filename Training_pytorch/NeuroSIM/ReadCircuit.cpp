@@ -162,6 +162,9 @@ void ReadCircuit::CalculateArea(double _newWidth) {	// Just add up the area of a
 	if (!initialized) {
 		cout << "[ReadCircuit] Error: Require initialization first!" << endl;
 	} else {
+		area = 0;
+		height = 0;
+		width = 0;
 		if (_newWidth) {	// Need to put read circuit units in multiple rows if there is a limitation on total width
 			if (wUnit > _newWidth) {
 				cout << "[ReadCircuit] Error: ReadCircuit width is even larger than the assigned width !" << endl;

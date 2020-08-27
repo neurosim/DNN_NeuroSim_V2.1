@@ -126,13 +126,15 @@ void Sigmoid::CalculateArea(double _newHeight, double _newWidth, AreaModify _opt
 		cout << "[Sigmoid] Error: Require initialization first!" << endl;
 	} else {
 		area = 0;
+		height = 0;
+		width = 0;
 		area = areaUnit * numFunction;
 		if (_newWidth && _option==NONE) {
 			width = _newWidth;
 			height = area/width;
 		} else {
 			height = _newHeight;
-            width = area/height;
+            		width = area/height;
 		}
 		// Modify layout
 		newHeight = _newHeight;

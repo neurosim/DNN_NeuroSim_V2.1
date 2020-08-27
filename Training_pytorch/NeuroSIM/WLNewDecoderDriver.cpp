@@ -88,7 +88,9 @@ void WLNewDecoderDriver::CalculateArea(double _newHeight, double _newWidth, Area
 	} else {
 		double hNand, wNand, hInv, wInv, hTg, wTg;
 		double minCellHeight = MAX_TRANSISTOR_HEIGHT * tech.featureSize;
-
+		area = 0;
+		height = 0;
+		width = 0;
 		// NAND2
 		CalculateGateArea(NAND, 2, widthNandN, widthNandP, minCellHeight, tech, &hNand, &wNand);
 		// INV

@@ -77,7 +77,9 @@ void SenseAmp::CalculateArea(double _newHeight, double _newWidth, AreaModify _op
 			exit(-1);
 		} 
 		double hSenseP, wSenseP, hSenseN, wSenseN, hSenseIso, wSenseIso, hSenseEn, wSenseEn;
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		// Exchange width and height as in the original code
 		CalculateGateArea(INV, 1, 0, W_SENSE_P * tech.featureSize, pitchSenseAmp, tech, &wSenseP, &hSenseP);
 		CalculateGateArea(INV, 1, 0, W_SENSE_ISO * tech.featureSize, pitchSenseAmp, tech, &wSenseIso, &hSenseIso);

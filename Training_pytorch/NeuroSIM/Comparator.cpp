@@ -108,8 +108,11 @@ void Comparator::CalculateArea(double widthArray){
 	if (!initialized) {
 		cout << "[Comparator] Error: Require initialization first!" << endl;
 	} else {
-		width= widthArray;
+		area = 0;
+		height = 0;
+		width = 0;
 		
+		width= widthArray;
 		area = areaUnit * numComparator;
 		height = area/width;
 		

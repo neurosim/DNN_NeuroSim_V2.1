@@ -76,7 +76,9 @@ void DecoderDriver::CalculateArea(double _newHeight, double _newWidth, AreaModif
 		double hInv, wInv, hTg, wTg;
 		double minCellHeight = MAX_TRANSISTOR_HEIGHT * tech.featureSize;
 		double minCellWidth = 2 * (POLY_WIDTH + MIN_GAP_BET_GATE_POLY) * tech.featureSize;
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		// TG
 		if (_newHeight && _option==NONE) {
 			if (_newHeight < minCellHeight) {

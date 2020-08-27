@@ -80,7 +80,9 @@ void WLDecoderOutput::CalculateArea(double _newHeight, double _newWidth, AreaMod
 	} else {
 		double hNor, wNor, hInv, wInv, hTg, wTg, hNmos, wNmos;
 		double minCellHeight = MAX_TRANSISTOR_HEIGHT * tech.featureSize;
-
+		area = 0;
+		height = 0;
+		width = 0;
 		// NOR2
 		CalculateGateArea(NOR, 2, widthNorN, widthNorP, minCellHeight, tech, &hNor, &wNor);
 		// INV

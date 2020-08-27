@@ -69,7 +69,9 @@ void SRAMWriteDriver::CalculateArea(double _newHeight, double _newWidth, AreaMod
 		double hInv, wInv;
 		// INV
 		CalculateGateArea(INV, 1, widthInvN, widthInvP, tech.featureSize*MAX_TRANSISTOR_HEIGHT, tech, &hInv, &wInv);
-
+		area = 0;
+		height = 0;
+		width = 0;
 		double hUnit = hInv * 3;
 		double wUnit = wInv;
 

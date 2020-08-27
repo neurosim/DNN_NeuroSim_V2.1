@@ -127,6 +127,9 @@ void RowDecoder::CalculateArea(double _newHeight, double _newWidth, AreaModify _
 		cout << "[Row Decoder Area] Error: Require initialization first!" << endl;
 	} else {
 		double hInv, wInv, hNand, wNand, hNor, wNor, hDriverInv, wDriverInv;
+		area = 0;
+		height = 0;
+		width = 0;
 		// INV
 		CalculateGateArea(INV, 1, widthInvN, widthInvP, tech.featureSize*MAX_TRANSISTOR_HEIGHT, tech, &hInv, &wInv);
 		// NAND2

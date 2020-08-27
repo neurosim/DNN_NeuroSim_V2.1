@@ -68,7 +68,9 @@ void DFF::CalculateArea(double _newHeight, double _newWidth, AreaModify _option)
 		cout << "[DFF] Error: Require initialization first!" << endl;
 	} else {
 		double hDffInv, wDffInv, hDff, wDff;
-
+		area = 0;
+		height = 0;
+		width = 0;
 		// Assume DFF size is 12 minimum-size standard cells put together
 		CalculateGateArea(INV, 1, MIN_NMOS_SIZE*tech.featureSize, tech.pnSizeRatio*MIN_NMOS_SIZE*tech.featureSize, tech.featureSize*MAX_TRANSISTOR_HEIGHT, tech, &hDffInv, &wDffInv);
 		hDff = hDffInv;

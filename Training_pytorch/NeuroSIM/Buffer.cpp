@@ -88,6 +88,8 @@ void Buffer::CalculateArea(double _newHeight, double _newWidth, AreaModify _opti
 		cout << "[Buffer] Error: Require initialization first!" << endl;
 	} else {
 		area = 0;
+		height = 0;
+		width = 0;
 		
 		if (SRAM) {
 			memoryArea = lengthRow * lengthCol;

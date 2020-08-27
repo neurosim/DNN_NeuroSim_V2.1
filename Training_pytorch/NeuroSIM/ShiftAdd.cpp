@@ -88,36 +88,30 @@ void ShiftAdd::CalculateArea(double _newHeight, double _newWidth, AreaModify _op
 		cout << "[ShiftAdd] Error: Require initialization first!" << endl;
 	} else {
 		double hInv, wInv, hNand, wNand;
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		// Adder
 		if (_newWidth && _option==NONE) {
 			if (spikingMode == NONSPIKING) {   // NONSPIKING: binary format
 				adder.CalculateArea(NULL, _newWidth, NONE);
 				dff.CalculateArea(NULL, _newWidth, NONE);
-				height = adder.height + tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */ + dff.height;
-				width = _newWidth;
 			} else {    // SPIKING: count spikes
 				dff.CalculateArea(NULL, _newWidth, NONE);
-				height = tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */ + dff.height;
-				width = _newWidth;
-			}
-		} else if (_newHeight && _option==NONE) {
-			if (spikingMode == NONSPIKING) {   // NONSPIKING: binary format
-				adder.CalculateArea(_newHeight, NULL, NONE);
-				dff.CalculateArea(_newHeight, NULL, NONE);
-				width = adder.width + dff.width;
-				height = _newHeight + tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */;
-			} else {    // SPIKING: count spikes
-				dff.CalculateArea(_newHeight, NULL, NONE);
-				width = dff.width;
-				height = _newHeight + tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */;
-				
 			}
 		} else {
 			cout << "[ShiftAdd] Error: No width assigned for the shift-and-add circuit" << endl;
 			exit(-1);
 		}
 		
+		// Assume the INV and NAND2 are on the same row and the total width of them is smaller than the adder or DFF
+		if (spikingMode == NONSPIKING) {	// NONSPIKING: binary format
+			height = adder.height + tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */ + dff.height;
+			width = _newWidth;
+		} else {	// SPIKING: count spikes
+			height = tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */ + dff.height;
+			width = _newWidth;
+		}
 		area = height * width;
 		
 		// Modify layout

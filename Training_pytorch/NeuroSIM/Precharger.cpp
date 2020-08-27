@@ -72,7 +72,9 @@ void Precharger::CalculateArea(double _newHeight, double _newWidth, AreaModify _
 		double hBitlineEqual, wBitlineEqual;
 		CalculateGateArea(INV, 1, 0, widthPMOSBitlinePrecharger, tech.featureSize*MAX_TRANSISTOR_HEIGHT, tech, &hBitlinePrecharger, &wBitlinePrecharger);
 		CalculateGateArea(INV, 1, 0, widthPMOSBitlineEqual, tech.featureSize*MAX_TRANSISTOR_HEIGHT, tech, &hBitlineEqual, &wBitlineEqual);
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		double hUnit = hBitlinePrecharger + hBitlineEqual * 2;
 		double wUnit = MAX(wBitlinePrecharger, wBitlineEqual);
 

@@ -67,7 +67,9 @@ void BitShifter::CalculateArea(double _newHeight, double _newWidth, AreaModify _
 		cout << "[BitShifter] Error: Require initialization first!" << endl;
 	} else {
 		double hInv, wInv, hNand, wNand;
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		dff.CalculateArea(NULL, NULL, NONE);
 		area = dff.area;
 		

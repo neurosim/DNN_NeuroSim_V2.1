@@ -71,7 +71,9 @@ void NewMux::CalculateArea(double _newHeight, double _newWidth, AreaModify _opti
 		cout << "[NewMux] Error: Require initialization first!" << endl;
 	} else {
 		double hTg, wTg;
-
+		area = 0;
+		height = 0;
+		width = 0;
 		if (_newWidth && _option==NONE) {
 			numRowTgPair = 1;
 			double minCellWidth = 2 * (POLY_WIDTH + MIN_GAP_BET_GATE_POLY) * tech.featureSize; // min standard cell width for 1 Tg

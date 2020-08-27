@@ -65,7 +65,9 @@ void AdderTree::CalculateArea(double _newHeight, double _newWidth, AreaModify _o
 		cout << "[AdderTree] Error: Require initialization first!" << endl;
 	} else {
 		double hInv, wInv, hNand, wNand;
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		// Adder
 		int numAdderEachStage = 0;                          // define # of adder in each stage
 		int numBitEachStage = numAdderBit;                  // define # of bits of the adder in each stage

@@ -141,6 +141,10 @@ void MaxPooling::CalculateArea(double widthArray){
 	if (!initialized) {
 		cout << "[MaxPooling] Error: Require initialization first!" << endl;
 	} else {
+		area = 0;
+		height = 0;
+		width = 0;
+		
 		width= widthArray;
 		area = areaUnit * numMaxPooling;      // able to assign multiple MPU to operate in parallel
 		height = area/width;

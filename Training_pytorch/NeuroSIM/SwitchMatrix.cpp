@@ -85,7 +85,9 @@ void SwitchMatrix::CalculateArea(double _newHeight, double _newWidth, AreaModify
 		cout << "[SwitchMatrix] Error: Require initialization first!" << endl;
 	} else {
 		double hTg, wTg;
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		if (mode == ROW_MODE) {	// Connect to rows
 			double minCellHeight = MAX_TRANSISTOR_HEIGHT * tech.featureSize;
 

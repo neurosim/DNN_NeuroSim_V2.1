@@ -80,7 +80,9 @@ void NewSwitchMatrix::CalculateArea(double _newHeight, double _newWidth, AreaMod
 		cout << "[NewSwitchMatrix] Error: Require initialization first!" << endl;
 	} else {
 		double hTg, wTg;
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		double minCellHeight = MAX_TRANSISTOR_HEIGHT * tech.featureSize;   // min standard cell height for 1 Tg 
 		if (_newHeight && _option==NONE) {
 			if (_newHeight < minCellHeight) {

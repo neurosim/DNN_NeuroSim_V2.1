@@ -69,7 +69,9 @@ void Adder::CalculateArea(double _newHeight, double _newWidth, AreaModify _optio
 		double hNand, wNand;
 		// NAND2
 		CalculateGateArea(NAND, 2, widthNandN, widthNandP, tech.featureSize * MAX_TRANSISTOR_HEIGHT, tech, &hNand, &wNand);
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		if (_newHeight && _option==NONE) {   // Adder in multiple columns given the total height
 			hAdder = hNand;
 			wAdder = wNand * 9 * numBit;

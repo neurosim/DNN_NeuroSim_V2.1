@@ -69,8 +69,10 @@ void MultilevelSAEncoder::CalculateArea(double _newHeight, double _newWidth, Are
 	if (!initialized) {
 		cout << "[MultilevelSAEncoder] Error: Require initialization first!" << endl;
 	} else {
-        double wEncoder, hEncoder, wNand, hNand, wNandLg, hNandLg, wInv, hInv;
-		
+        	double wEncoder, hEncoder, wNand, hNand, wNandLg, hNandLg, wInv, hInv;
+		area = 0;
+		height = 0;
+		width = 0;
 		// NAND2
 		CalculateGateArea(NAND, 2, widthNandN, widthNandP, tech.featureSize * MAX_TRANSISTOR_HEIGHT, tech, &hNand, &wNand);
 		// INV
@@ -82,7 +84,11 @@ void MultilevelSAEncoder::CalculateArea(double _newHeight, double _newWidth, Are
 		hEncoder = max( (numLevel-1)*hInv, (numLevel-1)*hNand );
 	    
 		if (_newWidth && _option==NONE) {
-			int numEncoderPerRow = MAX((int)(_newWidth/wEncoder), 1);
+			if (wEncoder > _newWidth) {
+				cout << "[MultilevelSAEncoder] Error: MultilevelSAEncoder width is even larger than the assigned width" << endl;
+			}
+			
+			int numEncoderPerRow = (int)(_newWidth/wEncoder);
 			if (numEncoderPerRow > numEncoder) {
 				numEncoderPerRow = numEncoder;
 			}
@@ -90,7 +96,11 @@ void MultilevelSAEncoder::CalculateArea(double _newHeight, double _newWidth, Are
 			width = _newWidth;
 			height = hEncoder * numRowEncoder;
 		} else if (_newHeight && _option==NONE) {
-			int numEncoderPerColumn = MAX((int) (_newHeight/hEncoder), 1);
+			if (hEncoder > _newHeight) {
+				cout << "[MultilevelSAEncoder] Error: MultilevelSAEncoder height is even larger than the assigned height" << endl;
+			}
+			
+			int numEncoderPerColumn = (int) (_newHeight/hEncoder);
 			if (numEncoderPerColumn > numEncoder) {
 				numEncoderPerColumn = numEncoder;
 			}

@@ -78,7 +78,9 @@ void Mux::CalculateArea(double _newHeight, double _newWidth, AreaModify _option)
 	} else {
 		double hTg, wTg;
 		int numTg = numInput * numSelection;
-
+		area = 0;
+		height = 0;
+		width = 0;
 		// TG
 		if (FPGA) {	// Digital Mux
 			CalculateGateArea(INV, 1, widthTgN, widthTgP, tech.featureSize*MAX_TRANSISTOR_HEIGHT, tech, &hTg, &wTg);

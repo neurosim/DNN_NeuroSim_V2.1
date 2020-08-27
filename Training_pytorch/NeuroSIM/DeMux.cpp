@@ -72,7 +72,9 @@ void DeMux::CalculateArea(double _newHeight, double _newWidth, AreaModify _optio
 		cout << "[DeMux] Error: Require initialization first!" << endl;
 	} else {
 		double hInv, wInv, hTg, wTg;
-		
+		area = 0;
+		height = 0;
+		width = 0;
 		// INV
 		CalculateGateArea(INV, 1, widthInvN, widthInvP, tech.featureSize*MAX_TRANSISTOR_HEIGHT, tech, &hInv, &wInv);
 
