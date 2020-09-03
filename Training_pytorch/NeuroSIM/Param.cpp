@@ -132,6 +132,10 @@ Param::Param() {
 	cellBit = 7;                        // precision of memory device 
 	
 	/*** parameters for SRAM ***/
+	// due the scaling, suggested SRAM cell size above 22nm: 160F^2
+	// SRAM cell size at 14nm: 300F^2
+	// SRAM cell size at 10nm: 400F^2
+	// SRAM cell size at 7nm: 600F^2
 	heightInFeatureSizeSRAM = 8;        // SRAM Cell height in feature size
 	widthInFeatureSizeSRAM = 20;        // SRAM Cell width in feature size
 	widthSRAMCellNMOS = 2.08;                              
