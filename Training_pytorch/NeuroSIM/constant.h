@@ -49,19 +49,22 @@
 #define MAX_NMOS_SIZE	100
 #define MIN_NMOS_SIZE	2	//1.5
 
-#define MAX_TRANSISTOR_HEIGHT 28
+#define MAX_TRANSISTOR_HEIGHT         28
+#define MAX_TRANSISTOR_HEIGHT_FINFET  34
 
-#define MIN_GAP_BET_P_AND_N_DIFFS	3.5 //2
-#define MIN_GAP_BET_SAME_TYPE_DIFFS	1.6	//1.5
-#define MIN_GAP_BET_GATE_POLY		2.8	//1.5
-#define MIN_GAP_BET_CONTACT_POLY	0.7	//0.75
-#define CONTACT_SIZE				1.3	//1
-#define MIN_WIDTH_POWER_RAIL		3.4	//2
-#define MIN_POLY_EXT_DIFF			1.0	// Minimum poly extension beyond diffusion region
-#define MIN_GAP_BET_FIELD_POLY		1.6	// Field poly means the poly above the field oxide (outside the active region)
-#define POLY_WIDTH					1.0
-#define M2_PITCH					3.2
-#define M3_PITCH					2.8
+#define MIN_GAP_BET_P_AND_N_DIFFS	   3.5 //2
+#define MIN_GAP_BET_SAME_TYPE_DIFFS	   1.6	//1.5
+#define MIN_GAP_BET_GATE_POLY		   2.8	//1.5
+#define MIN_GAP_BET_GATE_POLY_FINFET   3.9
+#define MIN_GAP_BET_CONTACT_POLY	   0.7	//0.75
+#define CONTACT_SIZE				   1.3	//1
+#define MIN_WIDTH_POWER_RAIL		   3.4	//2
+#define MIN_POLY_EXT_DIFF			   1.0	// Minimum poly extension beyond diffusion region
+#define MIN_GAP_BET_FIELD_POLY		   1.6	// Field poly means the poly above the field oxide (outside the active region)
+#define POLY_WIDTH					   1.0
+#define POLY_WIDTH_FINFET			   1.4
+#define M2_PITCH					   3.2
+#define M3_PITCH					   2.8
 
 #define AVG_RATIO_LEAK_2INPUT_NAND 0.48
 #define AVG_RATIO_LEAK_3INPUT_NAND 0.31
@@ -74,7 +77,7 @@
 #define W_SENSE_EN		5.0
 #define W_SENSE_MUX		9.0
 
-#define IR_DROP_TOLERANCE 			0.25     // changed to run small Ron (tsinghua design: 25k ohm) ...   old value = 0.1 (MIN Ron is 60k ohm)
+#define IR_DROP_TOLERANCE 			0.25
 
 #define HEIGHT_WIDTH_RATIO_LIMIT	5
 
