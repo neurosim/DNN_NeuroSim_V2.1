@@ -12,9 +12,9 @@ def truncated_normal_(tensor, mean=0, std=1):
 
 def scale_limit(limit, bits_W):
     # This is a magic number, copied
-    #beta = 1.5
-    #beta = 1.5 * 64  #8-bit
-    beta = 1.5*16
+    #beta = 1.5 #2-bit weight
+    #beta = 1.5 * 64  #8-bit weight
+    beta = 1.5*16 #5-bit weight
     Wm = beta / (2**(bits_W-1))
     scale = 2 ** round(np.log2(Wm/limit))
     scale = max(scale, 1.0)
