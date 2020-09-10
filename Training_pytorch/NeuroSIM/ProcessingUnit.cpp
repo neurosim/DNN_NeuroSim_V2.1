@@ -954,30 +954,30 @@ double GetWriteUpdateEstimation(SubArray *subArray, Technology& tech, MemCell& c
 			} else {
 				// SET
 				*writeDynamicEnergyArray += subArray->capRow2 * tech.vdd * tech.vdd * totalNumSetWritePulse;																                // Selected WL
-				*writeDynamicEnergyArray += subArray->capCol * cell.writeVoltage * cell.writeVoltage * (newMemory[0].size()-numSelectedColSet) * totalNumSetWritePulse;	                    // Unselected SLs
+				*writeDynamicEnergyArray += subArray->capCol * cell.writeVoltage * cell.writeVoltage * (newMemory[0].size()>=numSelectedColSet? (newMemory[0].size()-numSelectedColSet):(newMemory[0].size())) * totalNumSetWritePulse;	                    // Unselected SLs
 				*writeDynamicEnergyArray += subArray->capRow1 * cell.writeVoltage * cell.writeVoltage * numSelectedColSet * totalNumSetWritePulse;											// Selected BL
 				// RESET
 				*writeDynamicEnergyArray += subArray->capRow2 * tech.vdd * tech.vdd * totalNumResetWritePulse;																				// Selected WL
 				*writeDynamicEnergyArray += subArray->capCol * cell.writeVoltage * cell.writeVoltage * numSelectedColReset * totalNumResetWritePulse;										// Selected SLs
-				*writeDynamicEnergyArray += subArray->capRow1 * cell.writeVoltage * cell.writeVoltage * (newMemory[0].size()-numSelectedColReset) * totalNumSetWritePulse;					// Unselected BL
+				*writeDynamicEnergyArray += subArray->capRow1 * cell.writeVoltage * cell.writeVoltage * (newMemory[0].size()>=numSelectedColReset? (newMemory[0].size()-numSelectedColReset):(newMemory[0].size())) * totalNumResetWritePulse;				// Unselected BL
 			}
 		} else {
 			// SET
 			*writeDynamicEnergyArray += subArray->capRow1 * cell.writeVoltage * cell.writeVoltage * totalNumSetWritePulse;   																// Selected WL
-			*writeDynamicEnergyArray += subArray->capRow1 * cell.writeVoltage/2 * cell.writeVoltage/2 * (newMemory.size()-numSelectedRowSet) * (*numWritePulseAVG);  						// Unselected WLs
-			*writeDynamicEnergyArray += subArray->capCol * cell.writeVoltage/2 * cell.writeVoltage/2 * (newMemory[0].size()-numSelectedColSet) * totalNumSetWritePulse; 					// Unselected BLs
+			*writeDynamicEnergyArray += subArray->capRow1 * cell.writeVoltage/2 * cell.writeVoltage/2 * (newMemory.size()>=numSelectedRowSet? (newMemory.size()-numSelectedRowSet):(newMemory.size())) * (*numWritePulseAVG);  						// Unselected WLs
+			*writeDynamicEnergyArray += subArray->capCol * cell.writeVoltage/2 * cell.writeVoltage/2 * (newMemory[0].size()>=numSelectedColSet? (newMemory[0].size()-numSelectedColSet):(newMemory[0].size())) * totalNumSetWritePulse; 					// Unselected BLs
 			*writeDynamicEnergyArray += cell.writeVoltage/2 * cell.writeVoltage/2 * (1/cell.resMemCellOnAtHalfVw + 1/cell.resMemCellOffAtHalfVw) / 2 
-										* cell.writePulseWidth * (newMemory[0].size()-numSelectedColSet) * totalNumSetWritePulse;    										                // Half-selected (unselected) cells on the selected row
+										* cell.writePulseWidth * (newMemory[0].size()>=numSelectedColSet? (newMemory[0].size()-numSelectedColSet):(newMemory[0].size())) * totalNumSetWritePulse;    										                // Half-selected (unselected) cells on the selected row
 			*writeDynamicEnergyArray += cell.writeVoltage/2 * cell.writeVoltage/2 * (1/cell.resMemCellOnAtHalfVw + 1/cell.resMemCellOffAtHalfVw) / 2 
-										* cell.writePulseWidth * (newMemory.size()-numSelectedRowSet) * totalNumSetWritePulse;  											                // Half-selected (unselected) cells on the selected columns
+										* cell.writePulseWidth * (newMemory.size()>=numSelectedRowSet? (newMemory.size()-numSelectedRowSet):(newMemory.size())) * totalNumSetWritePulse;  											                // Half-selected (unselected) cells on the selected columns
 			// RESET
-			*writeDynamicEnergyArray += subArray->capRow1 * cell.writeVoltage/2 * cell.writeVoltage/2 * (newMemory.size()-numSelectedRowReset) * (*numWritePulseAVG);  					    // Unselected WLs
+			*writeDynamicEnergyArray += subArray->capRow1 * cell.writeVoltage/2 * cell.writeVoltage/2 * (newMemory.size()>=numSelectedRowReset? (newMemory.size()-numSelectedRowReset):(newMemory.size())) * (*numWritePulseAVG);  					    // Unselected WLs
 			*writeDynamicEnergyArray += subArray->capCol * cell.writeVoltage * cell.writeVoltage * totalNumResetWritePulse; 																	// Selected BLs
-			*writeDynamicEnergyArray += subArray->capCol * cell.writeVoltage/2 * cell.writeVoltage/2 * (newMemory[0].size()-numSelectedColReset) * totalNumResetWritePulse; 					// Unselected BLs
+			*writeDynamicEnergyArray += subArray->capCol * cell.writeVoltage/2 * cell.writeVoltage/2 * (newMemory[0].size()>=numSelectedColReset? (newMemory[0].size()-numSelectedColReset):(newMemory[0].size())) * totalNumResetWritePulse; 					// Unselected BLs
 			*writeDynamicEnergyArray += cell.writeVoltage/2 * cell.writeVoltage/2 * (1/cell.resMemCellOnAtHalfVw + 1/cell.resMemCellOffAtHalfVw) / 2 
-										* cell.writePulseWidth * (newMemory[0].size()-numSelectedColReset) * totalNumResetWritePulse;    									                    // Half-selected (unselected) cells on the selected row
+										* cell.writePulseWidth * (newMemory[0].size()>=numSelectedColReset? (newMemory[0].size()-numSelectedColReset):(newMemory[0].size())) * totalNumResetWritePulse;    									                    // Half-selected (unselected) cells on the selected row
 			*writeDynamicEnergyArray += cell.writeVoltage/2 * cell.writeVoltage/2 * (1/cell.resMemCellOnAtHalfVw + 1/cell.resMemCellOffAtHalfVw) / 2 
-										* cell.writePulseWidth * (newMemory.size()-numSelectedRowReset) * totalNumResetWritePulse;   										                // Half-selected (unselected) cells on the selected columns			
+										* cell.writePulseWidth * (newMemory.size()>=numSelectedRowReset? (newMemory.size()-numSelectedRowReset):(newMemory.size())) * totalNumResetWritePulse;   										                // Half-selected (unselected) cells on the selected columns			
 		}
 	} else {   // SRAM
 		*writeDynamicEnergyArray = 0; // leave to subarray.cpp 
