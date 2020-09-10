@@ -84,28 +84,20 @@ void MultilevelSAEncoder::CalculateArea(double _newHeight, double _newWidth, Are
 		hEncoder = max( (numLevel-1)*hInv, (numLevel-1)*hNand );
 	    
 		if (_newWidth && _option==NONE) {
-			if (wEncoder > _newWidth) {
-				cout << "[MultilevelSAEncoder] Error: MultilevelSAEncoder width is even larger than the assigned width" << endl;
-			}
-			
-			int numEncoderPerRow = (int)(_newWidth/wEncoder);
+			int numEncoderPerRow = (int)ceil(_newWidth/wEncoder);
 			if (numEncoderPerRow > numEncoder) {
 				numEncoderPerRow = numEncoder;
 			}
 			int numRowEncoder = (int)ceil((double)numEncoder / numEncoderPerRow);
-			width = _newWidth;
+			width = MAX(_newWidth, wEncoder);
 			height = hEncoder * numRowEncoder;
 		} else if (_newHeight && _option==NONE) {
-			if (hEncoder > _newHeight) {
-				cout << "[MultilevelSAEncoder] Error: MultilevelSAEncoder height is even larger than the assigned height" << endl;
-			}
-			
-			int numEncoderPerColumn = (int) (_newHeight/hEncoder);
+			int numEncoderPerColumn = (int) ceil(_newHeight/hEncoder);
 			if (numEncoderPerColumn > numEncoder) {
 				numEncoderPerColumn = numEncoder;
 			}
 			int numColEncoder = (int)ceil((double)numEncoder / numEncoderPerColumn);
-			height = _newHeight;
+			height = MAX(_newHeight, hEncoder);
 			width = wEncoder*numColEncoder;
 		}
 		area = height * width;

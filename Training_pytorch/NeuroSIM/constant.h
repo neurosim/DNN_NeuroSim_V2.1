@@ -78,6 +78,7 @@
 #define W_SENSE_MUX		9.0
 
 #define IR_DROP_TOLERANCE 			0.25
+#define LINEAR_REGION_RATIO         0.20
 
 #define HEIGHT_WIDTH_RATIO_LIMIT	5
 

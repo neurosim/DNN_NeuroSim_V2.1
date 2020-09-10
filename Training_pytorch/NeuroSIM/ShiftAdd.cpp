@@ -88,6 +88,10 @@ void ShiftAdd::CalculateArea(double _newHeight, double _newWidth, AreaModify _op
 		cout << "[ShiftAdd] Error: Require initialization first!" << endl;
 	} else {
 		double hInv, wInv, hNand, wNand;
+		// INV
+		CalculateGateArea(INV, 1, widthInvN, widthInvP, tech.featureSize * MAX_TRANSISTOR_HEIGHT, tech, &hInv, &wInv);
+		// NAND2
+		CalculateGateArea(NAND, 2, widthNandN, widthNandP, tech.featureSize * MAX_TRANSISTOR_HEIGHT, tech, &hNand, &wNand);
 		area = 0;
 		height = 0;
 		width = 0;
@@ -99,20 +103,32 @@ void ShiftAdd::CalculateArea(double _newHeight, double _newWidth, AreaModify _op
 			} else {    // SPIKING: count spikes
 				dff.CalculateArea(NULL, _newWidth, NONE);
 			}
+			// Assume the INV and NAND2 are on the same row and the total width of them is smaller than the adder or DFF
+			if (spikingMode == NONSPIKING) {	// NONSPIKING: binary format
+				height = adder.height + tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */ + dff.height;
+				width = _newWidth;
+			} else {	// SPIKING: count spikes
+				height = tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */ + dff.height;
+				width = _newWidth;
+			}
+			area = height * width;
 		} else {
-			cout << "[ShiftAdd] Error: No width assigned for the shift-and-add circuit" << endl;
-			exit(-1);
+			if (spikingMode == NONSPIKING) {   // NONSPIKING: binary format
+				adder.CalculateArea(_newHeight, NULL, NONE);
+				dff.CalculateArea(_newHeight, NULL, NONE);
+			} else {    // SPIKING: count spikes
+				dff.CalculateArea(_newHeight, NULL, NONE);
+			}
+			// Assume the INV and NAND2 are on the same row and the total width of them is smaller than the adder or DFF
+			if (spikingMode == NONSPIKING) {	// NONSPIKING: binary format
+				height = _newHeight;
+				width = adder.width + wInv + wNand /* INV and NAND2 */ + dff.width;
+			} else {	// SPIKING: count spikes
+				height = _newHeight;
+				width = wInv + wNand /* INV and NAND2 */ + dff.width;
+			}
+			area = height * width;
 		}
-		
-		// Assume the INV and NAND2 are on the same row and the total width of them is smaller than the adder or DFF
-		if (spikingMode == NONSPIKING) {	// NONSPIKING: binary format
-			height = adder.height + tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */ + dff.height;
-			width = _newWidth;
-		} else {	// SPIKING: count spikes
-			height = tech.featureSize*MAX_TRANSISTOR_HEIGHT /* INV and NAND2 */ + dff.height;
-			width = _newWidth;
-		}
-		area = height * width;
 		
 		// Modify layout
 		newHeight = _newHeight;

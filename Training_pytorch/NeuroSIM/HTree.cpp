@@ -133,12 +133,11 @@ void HTree::CalculateArea(double unitHeight, double unitWidth, double foldedrati
 		double numRepeater = 0;
 		
 		for (int i=1; i<(numStage-1)/2; i++) {   // start from center point, consider both vertical and horizontal stage at each time, ignore last stage, assume it overlap with unit's layout
-		
 			double wireWidth, unitLengthWireResistance;
-			wireWidth, unitLengthWireResistance = GetUnitLengthRes(i);
 
 			/*** vertical stage ***/
 			wireLengthV /= 2;   // wire length /2 
+			wireWidth, unitLengthWireResistance = GetUnitLengthRes(wireLengthV);
 			numRepeater = ceil(wireLengthV/minDist);
 			if (numRepeater > 0) {
 				wireWidV += busWidth*wInv/foldedratio;   // which ever stage, the sum of wireWidth should always equal to busWidth (main bus width)
@@ -149,6 +148,7 @@ void HTree::CalculateArea(double unitHeight, double unitWidth, double foldedrati
 			
 			/*** horizontal stage ***/
 			wireLengthH /= 2;   // wire length /2 
+			wireWidth, unitLengthWireResistance = GetUnitLengthRes(wireLengthH);
 			numRepeater = ceil(wireLengthH/minDist);
 			if (numRepeater > 0) {
 				wireWidH += busWidth*hInv/foldedratio;   // which ever stage, the sum of wireWidth should always equal to busWidth (main bus width)
@@ -184,12 +184,12 @@ void HTree::CalculateLatency(int x_init, int y_init, int x_end, int y_end, doubl
 		if (((!x_init) && (!y_init)) || ((!x_end) && (!y_end))) {      // root-leaf communicate (fixed addr)
 			for (int i=0; i<(numStage-1)/2; i++) {                     // ignore main bus here, but need to count until last stage (diff from area calculation)
 				double wireWidth, unitLengthWireResistance;
-				wireWidth, unitLengthWireResistance = GetUnitLengthRes(i);
 				unitLatencyRep = 0.7*(resOnRep*(capInvInput+capInvOutput+unitLengthWireCap*minDist)+0.5*unitLengthWireResistance*minDist*unitLengthWireCap*minDist+unitLengthWireResistance*minDist*capInvInput)/minDist;
 				unitLatencyWire = 0.7*unitLengthWireResistance*minDist*unitLengthWireCap*minDist/minDist;
 			
 				/*** vertical stage ***/
 				wireLengthV /= 2;   // wire length /2 
+				wireWidth, unitLengthWireResistance = GetUnitLengthRes(wireLengthV);
 				numRepeater = ceil(wireLengthV/minDist);
 				if (numRepeater > 0) {
 					readLatency += wireLengthV*unitLatencyRep;
@@ -199,6 +199,7 @@ void HTree::CalculateLatency(int x_init, int y_init, int x_end, int y_end, doubl
 				
 				/*** horizontal stage ***/
 				wireLengthH /= 2;   // wire length /2 
+				wireWidth, unitLengthWireResistance = GetUnitLengthRes(wireLengthH);
 				numRepeater = ceil(wireLengthH/minDist);
 				if (numRepeater > 0) {
 					readLatency += wireLengthH*unitLatencyRep;
@@ -257,12 +258,12 @@ void HTree::CalculateLatency(int x_init, int y_init, int x_end, int y_end, doubl
 			/*** count the following stage ***/
 			for (int i=find_stage+1; i<(numStage-1)/2; i++) {  
 				double wireWidth, unitLengthWireResistance;
-				wireWidth, unitLengthWireResistance = GetUnitLengthRes(i);
 				unitLatencyRep = 0.7*(resOnRep*(capInvInput+capInvOutput+unitLengthWireCap*minDist)+0.5*unitLengthWireResistance*minDist*unitLengthWireCap*minDist+unitLengthWireResistance*minDist*capInvInput)/minDist;
 				unitLatencyWire = 0.7*unitLengthWireResistance*minDist*unitLengthWireCap*minDist/minDist;
 			
 				/*** vertical stage ***/
 				wireLengthV /= 2;   // wire length /2 
+				wireWidth, unitLengthWireResistance = GetUnitLengthRes(wireLengthV);
 				numRepeater = ceil(wireLengthV/minDist);
 				if (numRepeater > 0) {
 					readLatency += wireLengthV*unitLatencyRep;
@@ -271,6 +272,7 @@ void HTree::CalculateLatency(int x_init, int y_init, int x_end, int y_end, doubl
 				}
 				/*** horizontal stage ***/
 				wireLengthH /= 2;   // wire length /2 
+				wireWidth, unitLengthWireResistance = GetUnitLengthRes(wireLengthH);
 				numRepeater = ceil(wireLengthH/minDist);
 				if (numRepeater > 0) {
 					readLatency += wireLengthH*unitLatencyRep;
@@ -370,13 +372,12 @@ void HTree::PrintProperty(const char* str) {
 	FunctionUnit::PrintProperty(str);
 }
 
-double HTree::GetUnitLengthRes(int numStage) {
-	
+double HTree::GetUnitLengthRes(double wireLength) {
 	double wireWidth, AR, Rho, unitLengthWireResistance, wireResistance;
-	
-	if (numStage <= 2) {
+
+	if (wireLength/tech.featureSize >= 100000) {
 		wireWidth = 4*param->wireWidth;
-	} else if (2 < numStage <= 4) {
+	} else if (10000 <= wireLength/tech.featureSize <= 100000) {
 		wireWidth = 2*param->wireWidth;
 	} else {
 		wireWidth = 1*param->wireWidth;
@@ -405,7 +406,6 @@ double HTree::GetUnitLengthRes(int numStage) {
 		Rho = 7.43e-8;
 	} 
 	
-	double wireLength = wireWidth * 1e-9 * 2;	
 	if (wireWidth == -1) {
 		unitLengthWireResistance = 1.0;	// Use a small number to prevent numerical error for NeuroSim
 	} else {

@@ -59,7 +59,7 @@ public:
 	void CalculateArea(double unitHeight, double unitWidth, double foldedratio);
 	void CalculateLatency(int x_init, int y_init, int x_end, int y_end, double unitHeight, double unitWidth, double numRead);
 	void CalculatePower(int x_init, int y_init, int x_end, int y_end, double unitHeight, double unitWidth, double numBitAccess, double numRead);
-	double GetUnitLengthRes(int numStage);
+	double GetUnitLengthRes(double wireLength);
 
 	/* Properties */
 	bool initialized;	/* Initialization flag */
