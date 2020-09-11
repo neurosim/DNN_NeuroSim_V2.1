@@ -154,8 +154,8 @@ Param::Param() {
 	maxConductance = (double) 1/resistanceOn;
 	minConductance = (double) 1/resistanceOff;
 	gateCapFeFET = 2.1717e-18;	        // Gate capacitance of FeFET (F)
-	maxNumLevelLTP = 128;	            // Maximum number of conductance states during LTP or weight increase
-	maxNumLevelLTD = 128;	            // Maximum number of conductance states during LTD or weight decrease
+	maxNumLevelLTP = 32;	            // Maximum number of conductance states during LTP or weight increase
+	maxNumLevelLTD = 32;	            // Maximum number of conductance states during LTD or weight decrease
 	writeVoltage = 4;
 	writePulseWidth = 50e-9;
 	nonlinearIV = false; 				// This option is to consider I-V nonlinearity in cross-point array or not
