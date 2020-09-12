@@ -111,9 +111,16 @@ Param::Param() {
 	
 	/*** conventional hardware design options ***/
 	clkFreq = 1e9;                      // Clock frequency
-	featuresize = 40e-9;                // Wire width for subArray simulation
 	temp = 300;                         // Temperature (K)
+	// technode: 130, 90 --> wireWidth: 200
+	// technode: 65      --> wireWidth: 100
+	// technode: 45      --> wireWidth: 50
+	// technode: 32      --> wireWidth: 40
+	// technode: 22      --> wireWidth: 32
+	// technode: 14      --> wireWidth: 22
+	// technode: 10, 7   --> wireWidth: 14
 	technode = 32;                      // Technology
+	featuresize = 40e-9;                // Wire width for subArray simulation
 	wireWidth = 40;                     // wireWidth of the cell for Accuracy calculation
 	globalBusDelayTolerance = 0.1;      // to relax bus delay for global H-Tree (chip level: communication among tiles), if tolerance is 0.1, the latency will be relax to (1+0.1)*optimalLatency (trade-off with energy)
 	localBusDelayTolerance = 0.1;       // to relax bus delay for global H-Tree (tile level: communication among PEs), if tolerance is 0.1, the latency will be relax to (1+0.1)*optimalLatency (trade-off with energy)
@@ -232,13 +239,13 @@ Param::Param() {
 	
 	/*** Initialize interconnect wires ***/
 	switch(wireWidth) {
-		case 200: 	AR = 2.10; Rho = 2.42e-8; break;
-		case 100:	AR = 2.30; Rho = 2.73e-8; break;
-		case 50:	AR = 2.34; Rho = 3.91e-8; break;
-		case 40:	AR = 1.90; Rho = 4.03e-8; break;
-		case 32:	AR = 1.90; Rho = 4.51e-8; break;
-		case 22:	AR = 2.00; Rho = 5.41e-8; break;
-		case 14:	AR = 2.10; Rho = 7.43e-8; break;
+		case 200: 	AR = 2.10; Rho = 2.42e-8; break;  // for technode: 130, 90
+		case 100:	AR = 2.30; Rho = 2.73e-8; break;  // for technode: 65
+		case 50:	AR = 2.34; Rho = 3.91e-8; break;  // for technode: 45
+		case 40:	AR = 1.90; Rho = 4.03e-8; break;  // for technode: 32
+		case 32:	AR = 1.90; Rho = 4.51e-8; break;  // for technode: 22
+		case 22:	AR = 2.00; Rho = 5.41e-8; break;  // for technode: 14, 10
+		case 14:	AR = 2.10; Rho = 7.43e-8; break;  // for technode: 7
 		case -1:	break;	// Ignore wire resistance or user define
 		default:	exit(-1); puts("Wire width out of range"); 
 	}
