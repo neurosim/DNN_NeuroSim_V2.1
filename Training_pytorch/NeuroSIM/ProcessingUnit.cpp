@@ -898,6 +898,13 @@ double GetWriteUpdateEstimation(SubArray *subArray, Technology& tech, MemCell& c
 						// energy in each cell
 						*writeDynamicEnergyArray += cell.writeVoltage * cell.writeVoltage / (abs(1/newMemory[i][j] + 1/oldMemory[i][j])/2) * cell.writePulseWidth * thisPulse *((cell.memCellType == Type::FeFET)==true? 0:1);
 					}
+					if (cell.memCellType == Type::FeFET) { //FeFET
+						double newPr = (newMemory[i][j]/minDeltaConductance-maxNumWritePulse/2)*(param->polarization*2/maxNumWritePulse);
+						double oldPr = (oldMemory[i][j]/minDeltaConductance-maxNumWritePulse/2)*(param->polarization*2/maxNumWritePulse);
+						// assume pr and conductance are linear mapped
+						double deltaPr = abs(newPr+(param->polarization))+abs(oldPr+(param->polarization));  // uC/cm^2 (assume erase before program)
+						*writeDynamicEnergyArray += deltaPr*0.01*cell.writeVoltage*(2*tech.featureSize*tech.featureSize);
+					}
 				} else { // no update
 					numSet += 0;
 					numReset += 0;
