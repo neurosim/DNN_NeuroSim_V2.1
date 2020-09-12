@@ -7,6 +7,8 @@ This is the released version 2.1 (Aug 8, 2020) for the tool.
 :star2: This V2.1 has **_improved following estimation_**:
 ```
 1. Calibrate FinFET technology library: temperature-related features.
+2. Calibrate FinFET technology layout features.
+3. Include FeFET polarization during weight-update.
 ```
 :star2: This version has also added **_new features into inference accuracy estimation_**:
 ```
