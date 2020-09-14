@@ -67,14 +67,14 @@ void SwitchMatrix::Initialize(int _mode, int _numOutput, double _resTg, bool _ne
 	dff.Initialize(numOutput, clkFreq);       // used for scan-in ...
 	
 	// TG  resTg = cell.resMemCellOn / numLoad * IR_DROP_TOLERANCE;
-	resTg = _resTg;      // given actual TG resistance
+	resTg = _resTg * IR_DROP_TOLERANCE;      // given actual TG resistance
 	
 	// Why use pre-defined resTg? Becasue we want to define TG resistance according to loading and performance ...
 	
-	widthTgN = CalculateOnResistance(tech.featureSize, NMOS, inputParameter.temperature, tech) * tech.featureSize / (resTg*2);
+	widthTgN = CalculateOnResistance(tech.featureSize, NMOS, inputParameter.temperature, tech) * tech.featureSize * LINEAR_REGION_RATIO/ (resTg*2);
 	// R~(1/W), calculate actual TG width based on feature-sized TG resistance and given actual TG resistance 
 	
-	widthTgP = CalculateOnResistance(tech.featureSize, PMOS, inputParameter.temperature, tech) * tech.featureSize / (resTg*2);
+	widthTgP = CalculateOnResistance(tech.featureSize, PMOS, inputParameter.temperature, tech) * tech.featureSize * LINEAR_REGION_RATIO/ (resTg*2);
 	// assuming resTgN = resTgP, so resTgN = resTgP = 2*resTg (connected in parallel)
 
 	initialized = true;
