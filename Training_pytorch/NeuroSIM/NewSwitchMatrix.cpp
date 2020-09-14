@@ -70,7 +70,7 @@ void NewSwitchMatrix::Initialize(int _numOutput, double _activityRowRead, double
 	dff.Initialize(numOutput, clkFreq); 
 	widthTgN = MIN_NMOS_SIZE * tech.featureSize;
 	widthTgP = tech.pnSizeRatio * MIN_NMOS_SIZE * tech.featureSize;
-	resTg = CalculateOnResistance(widthTgN, NMOS, inputParameter.temperature, tech)/2;
+	resTg = CalculateOnResistance(widthTgN, NMOS, inputParameter.temperature, tech) * LINEAR_REGION_RATIO;
 	
 	initialized = true;
 }
