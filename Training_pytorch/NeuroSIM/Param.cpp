@@ -49,6 +49,7 @@
 #include <algorithm>
 #include "math.h"
 #include "Param.h"
+#include "constant.h"
 
 using namespace std;
 
@@ -171,7 +172,7 @@ Param::Param() {
 	readVoltage = 0.5;	                // On-chip read voltage for memory cell
 	readPulseWidth = 10e-9;             // read pulse width in sec
 	accessVoltage = 1.1;                // Gate voltage for the transistor in 1T1R
-	resistanceAccess = 15e3;            // resistance of access CMOS in 1T1R
+	resistanceAccess = resistanceOn*IR_DROP_TOLERANCE;            // resistance of access CMOS in 1T1R
 	
 	
 	/****** design options for on-chip training ******/
