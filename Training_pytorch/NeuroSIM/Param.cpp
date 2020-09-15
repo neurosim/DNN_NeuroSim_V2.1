@@ -49,7 +49,6 @@
 #include <algorithm>
 #include "math.h"
 #include "Param.h"
-#include "constant.h"
 
 using namespace std;
 
@@ -58,7 +57,7 @@ Param::Param() {
 	operationmode = 2;     		// 1: conventionalSequential (Use several multi-bit RRAM as one synapse)
 								// 2: conventionalParallel (Use several multi-bit RRAM as one synapse)
 	
-	memcelltype = 2;        	// 1: cell.memCellType = Type::SRAM
+	memcelltype = 3;        	// 1: cell.memCellType = Type::SRAM
 								// 2: cell.memCellType = Type::RRAM
 								// 3: cell.memCellType = Type::FeFET
 	
@@ -157,13 +156,14 @@ Param::Param() {
 	heightInFeatureSizeCrossbar = 2;    // Crossbar Cell height in feature size
 	widthInFeatureSizeCrossbar = 2;     // Crossbar Cell width in feature size
 	
-	resistanceOn = 100e3;               // Ron resistance at Vr in the reported measurement data (need to recalculate below if considering the nonlinearity)
-	resistanceOff = 100e3*10;           // Roff resistance at Vr in the reported measurement dat (need to recalculate below if considering the nonlinearity)
+	resistanceOn = 240e3;               // Ron resistance at Vr in the reported measurement data (need to recalculate below if considering the nonlinearity)
+	resistanceOff = 240e3*100;           // Roff resistance at Vr in the reported measurement dat (need to recalculate below if considering the nonlinearity)
 	maxConductance = (double) 1/resistanceOn;
 	minConductance = (double) 1/resistanceOff;
 	gateCapFeFET = 2.1717e-18;	        // Gate capacitance of FeFET (F)
-	maxNumLevelLTP = 32;	            // Maximum number of conductance states during LTP or weight increase
-	maxNumLevelLTD = 32;	            // Maximum number of conductance states during LTD or weight decrease
+	polarization = 20;                  // polarization of FeFET (uC/cm^2)
+	maxNumLevelLTP = 60;	            // Maximum number of conductance states during LTP or weight increase
+	maxNumLevelLTD = 60;	            // Maximum number of conductance states during LTD or weight decrease
 	writeVoltage = 4;
 	writePulseWidth = 50e-9;
 	nonlinearIV = false; 				// This option is to consider I-V nonlinearity in cross-point array or not
@@ -172,7 +172,7 @@ Param::Param() {
 	readVoltage = 0.5;	                // On-chip read voltage for memory cell
 	readPulseWidth = 10e-9;             // read pulse width in sec
 	accessVoltage = 1.1;                // Gate voltage for the transistor in 1T1R
-	resistanceAccess = resistanceOn*IR_DROP_TOLERANCE;            // resistance of access CMOS in 1T1R
+	resistanceAccess = 15e3;            // resistance of access CMOS in 1T1R
 	
 	
 	/****** design options for on-chip training ******/
