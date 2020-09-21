@@ -46,7 +46,7 @@
 /*** Functions ***/
 void ProcessingUnitInitialize(SubArray *& subArray, InputParameter& inputParameter, Technology& tech, MemCell& cell, int _numSubArrayRowNM, int _numSubArrayColNM, int _numSubArrayRowCM, int _numSubArrayColCM);
 vector<double> ProcessingUnitCalculateArea(SubArray *subArray, int numSubArrayRow, int numSubArrayCol, bool NMpe, double *height, double *width, double *bufferArea);
-double ProcessingUnitCalculatePerformance(SubArray *subArray, Technology& tech, MemCell& cell, bool NMpe, 
+double ProcessingUnitCalculatePerformance(SubArray *subArray, Technology& tech, MemCell& cell, int layerNumber, bool NMpe, 
 										const vector<vector<double> > &newMemory, const vector<vector<double> > &oldMemory, const vector<vector<double> > &inputVector, 
 										int arrayDupRow, int arrayDupCol, int numSubArrayRow, int numSubArrayCol, int weightMatrixRow, int weightMatrixCol, 
 										int numInVector, double *readLatency, double *readDynamicEnergy, double *leakage, 

@@ -960,37 +960,39 @@ void SubArray::CalculateLatency(double columnRes, const vector<double> &columnRe
 				/* Transpose Peripheral for BP */
 				if (trainingEstimation) {
 					readLatencyAG = 0;
-					int numReadOperationPerCol = (int)ceil((double)numCol/numReadCellPerOperationNeuro);
-					int numWriteOperationPerRow = (int)ceil((double)numCol*activityColWrite/numWriteCellPerOperationNeuro);
-					wlDecoderBP.CalculateLatency(1e20, capCol, NULL, numCol*activityBPColRead, numRow*activityRowWrite);
-					prechargerBP.CalculateLatency(1e20, capRow1, numReadOperationPerCol*numCol*activityBPColRead, numWriteOperationPerRow*numRow*activityRowWrite);
-					sramWriteDriverBP.CalculateLatency(1e20, capCol, resCol, numWriteOperationPerRow*numRow*activityRowWrite);
-					senseAmpBP.CalculateLatency(numReadOperationPerCol*numCol*activityBPColRead);
-					dffBP.CalculateLatency(1e20, numReadOperationPerCol*numCol*activityBPColRead);
-					adderBP.CalculateLatency(1e20, dff.capTgDrain, numReadOperationPerCol*numCol*activityBPColRead);
-					if (numReadPulseBP > 1) {
-						shiftAdd.CalculateLatency(1);	
+					if (layerNumber != 0) {
+						int numReadOperationPerCol = (int)ceil((double)numCol/numReadCellPerOperationNeuro);
+						int numWriteOperationPerRow = (int)ceil((double)numCol*activityColWrite/numWriteCellPerOperationNeuro);
+						wlDecoderBP.CalculateLatency(1e20, capCol, NULL, numCol*activityBPColRead, numRow*activityRowWrite);
+						prechargerBP.CalculateLatency(1e20, capRow1, numReadOperationPerCol*numCol*activityBPColRead, numWriteOperationPerRow*numRow*activityRowWrite);
+						sramWriteDriverBP.CalculateLatency(1e20, capCol, resCol, numWriteOperationPerRow*numRow*activityRowWrite);
+						senseAmpBP.CalculateLatency(numReadOperationPerCol*numCol*activityBPColRead);
+						dffBP.CalculateLatency(1e20, numReadOperationPerCol*numCol*activityBPColRead);
+						adderBP.CalculateLatency(1e20, dff.capTgDrain, numReadOperationPerCol*numCol*activityBPColRead);
+						if (numReadPulseBP > 1) {
+							shiftAdd.CalculateLatency(1);	
+						}
+						
+						double resPullDown = CalculateOnResistance(cell.widthSRAMCellNMOS * tech.featureSize, NMOS, inputParameter.temperature, tech);
+						double tau = (resCellAccess + resPullDown) * (capCellAccess + capRow1) + resRow * capRow1 / 2;
+						tau *= log(tech.vdd / (tech.vdd - cell.minSenseVoltage / 2));   
+						double gm = CalculateTransconductance(cell.widthAccessCMOS * tech.featureSize, NMOS, tech);
+						double beta = 1 / (resPullDown * gm);
+						double colRamp = 0;
+						colDelay = horowitz(tau, beta, wlDecoderBP.rampOutput, &colRamp) * numReadOperationPerCol * numCol * activityBPColRead;
+						
+						readLatencyAG += wlDecoderBP.readLatency;
+						readLatencyAG += prechargerBP.readLatency;
+						readLatencyAG += colDelay;
+						readLatencyAG += senseAmpBP.readLatency;
+						readLatencyAG += adderBP.readLatency;
+						readLatencyAG += dffBP.readLatency;
+						readLatencyAG += shiftAddBP.readLatency;
+						
+						readLatencyADC += prechargerBP.readLatency + colDelay + senseAmpBP.readLatency;
+						readLatencyAccum += adderBP.readLatency + dffBP.readLatency + shiftAddBP.readLatency;
+						readLatencyOther += wlDecoderBP.readLatency;
 					}
-					
-					double resPullDown = CalculateOnResistance(cell.widthSRAMCellNMOS * tech.featureSize, NMOS, inputParameter.temperature, tech);
-					double tau = (resCellAccess + resPullDown) * (capCellAccess + capRow1) + resRow * capRow1 / 2;
-					tau *= log(tech.vdd / (tech.vdd - cell.minSenseVoltage / 2));   
-					double gm = CalculateTransconductance(cell.widthAccessCMOS * tech.featureSize, NMOS, tech);
-					double beta = 1 / (resPullDown * gm);
-					double colRamp = 0;
-					colDelay = horowitz(tau, beta, wlDecoderBP.rampOutput, &colRamp) * numReadOperationPerCol * numCol * activityBPColRead;
-					
-					readLatencyAG += wlDecoderBP.readLatency;
-					readLatencyAG += prechargerBP.readLatency;
-					readLatencyAG += colDelay;
-					readLatencyAG += senseAmpBP.readLatency;
-					readLatencyAG += adderBP.readLatency;
-					readLatencyAG += dffBP.readLatency;
-					readLatencyAG += shiftAddBP.readLatency;
-					
-					readLatencyADC = prechargerBP.readLatency + colDelay + senseAmpBP.readLatency;
-					readLatencyAccum = adderBP.readLatency + dffBP.readLatency + shiftAddBP.readLatency;
-					readLatencyOther = wlDecoderBP.readLatency;
 				}
 				
 			} else if (conventionalParallel) {
@@ -1053,79 +1055,81 @@ void SubArray::CalculateLatency(double columnRes, const vector<double> &columnRe
 				/* Transpose Peripheral for BP */
 				if (trainingEstimation) {
 					readLatencyAG = 0;
-					int numReadOperationPerCol = (int)ceil((double)numCol/numReadCellPerOperationNeuro);
-					int numWriteOperationPerRow = (int)ceil((double)numCol*activityColWrite/numWriteCellPerOperationNeuro);
-					
-					if (parallelBP) {
-						wlSwitchMatrixBP.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP, 2*numWriteOperationPerRow*numRow*activityRowWrite);
-						prechargerBP.CalculateLatency(1e20, capRow1, numRowMuxedBP, numWriteOperationPerRow*numRow*activityRowWrite);
-						sramWriteDriverBP.CalculateLatency(1e20, capRow1, resRow, numWriteOperationPerRow*numRow*activityRowWrite);
-						if (numRowMuxedBP>1) {	
-							muxBP.CalculateLatency(0, 0, numRowMuxedBP);
-							muxDecoderBP.CalculateLatency(1e20, mux.capTgGateN*ceil(numCol/numRowMuxedBP), mux.capTgGateP*ceil(numCol/numRowMuxedBP), numRowMuxedBP, 0);
-						}
-						if (SARADC) {
-							sarADCBP.CalculateLatency(numRowMuxedBP);
+					if (layerNumber != 0) {
+						int numReadOperationPerCol = (int)ceil((double)numCol/numReadCellPerOperationNeuro);
+						int numWriteOperationPerRow = (int)ceil((double)numCol*activityColWrite/numWriteCellPerOperationNeuro);
+						
+						if (parallelBP) {
+							wlSwitchMatrixBP.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP, 2*numWriteOperationPerRow*numRow*activityRowWrite);
+							prechargerBP.CalculateLatency(1e20, capRow1, numRowMuxedBP, numWriteOperationPerRow*numRow*activityRowWrite);
+							sramWriteDriverBP.CalculateLatency(1e20, capRow1, resRow, numWriteOperationPerRow*numRow*activityRowWrite);
+							if (numRowMuxedBP>1) {	
+								muxBP.CalculateLatency(0, 0, numRowMuxedBP);
+								muxDecoderBP.CalculateLatency(1e20, mux.capTgGateN*ceil(numCol/numRowMuxedBP), mux.capTgGateP*ceil(numCol/numRowMuxedBP), numRowMuxedBP, 0);
+							}
+							if (SARADC) {
+								sarADCBP.CalculateLatency(numRowMuxedBP);
+							} else {
+								multilevelSenseAmpBP.CalculateLatency(columnResistance, numRowMuxedBP, 1);
+								multilevelSAEncoderBP.CalculateLatency(1e20, numRowMuxedBP);
+							}
+
+							if (numReadPulseBP > 1) {
+								shiftAddBP.CalculateLatency(numRowMuxedBP);	
+							}
+							// Read
+							double resPullDown = CalculateOnResistance(cell.widthSRAMCellNMOS * tech.featureSize, NMOS, inputParameter.temperature, tech);
+							double tau = (resCellAccess + resPullDown) * (capCellAccess + capRow1) + resRow * capRow1 / 2;
+							tau *= log(tech.vdd / (tech.vdd - cell.minSenseVoltage / 2));   
+							double gm = CalculateTransconductance(cell.widthAccessCMOS * tech.featureSize, NMOS, tech);
+							double beta = 1 / (resPullDown * gm);
+							double colRamp = 0;
+							colDelay = horowitz(tau, beta, wlSwitchMatrixBP.rampOutput, &colRamp);
+
+							readLatencyAG = 0;
+							readLatencyAG += MAX(wlSwitchMatrixBP.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
+							readLatencyAG += prechargerBP.readLatency;
+							readLatencyAG += colDelay;
+							readLatencyAG += multilevelSenseAmpBP.readLatency;
+							readLatencyAG += multilevelSAEncoderBP.readLatency;
+							readLatencyAG += shiftAddBP.readLatency;
+							readLatencyAG += sarADCBP.readLatency;
+							
+							readLatencyADC += prechargerBP.readLatency + colDelay + multilevelSenseAmpBP.readLatency + multilevelSAEncoderBP.readLatency + sarADCBP.readLatency;
+							readLatencyAccum += shiftAddBP.readLatency;
+							readLatencyOther += MAX(wlSwitchMatrixBP.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
+							
 						} else {
-							multilevelSenseAmpBP.CalculateLatency(columnResistance, numRowMuxedBP, 1);
-							multilevelSAEncoderBP.CalculateLatency(1e20, numRowMuxedBP);
+							wlSwitchMatrixBP.CalculateLatency(1e20, capCol, resCol, numReadOperationPerCol*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite);
+							prechargerBP.CalculateLatency(1e20, capRow1, numReadOperationPerCol*numCol*activityBPColRead, numWriteOperationPerRow*numRow*activityRowWrite);
+							sramWriteDriverBP.CalculateLatency(1e20, capRow1, resRow, numWriteOperationPerRow*numRow*activityRowWrite);
+							senseAmpBP.CalculateLatency(numReadOperationPerCol*numCol*activityBPColRead);
+							dffBP.CalculateLatency(1e20, numReadOperationPerCol*numCol*activityBPColRead);
+							adderBP.CalculateLatency(1e20, dffBP.capTgDrain, numReadOperationPerCol*numCol*activityBPColRead);
+							if (numReadPulseBP > 1) {
+								shiftAdd.CalculateLatency(1);	
+							}
+							
+							double resPullDown = CalculateOnResistance(cell.widthSRAMCellNMOS * tech.featureSize, NMOS, inputParameter.temperature, tech);
+							double tau = (resCellAccess + resPullDown) * (capCellAccess + capRow1) + resRow * capRow1 / 2;
+							tau *= log(tech.vdd / (tech.vdd - cell.minSenseVoltage / 2));   
+							double gm = CalculateTransconductance(cell.widthAccessCMOS * tech.featureSize, NMOS, tech);
+							double beta = 1 / (resPullDown * gm);
+							double colRamp = 0;
+							colDelay = horowitz(tau, beta, wlSwitchMatrixBP.rampOutput, &colRamp) * numReadOperationPerCol * numCol * activityBPColRead;
+							
+							readLatencyAG += wlSwitchMatrixBP.readLatency;
+							readLatencyAG += prechargerBP.readLatency;
+							readLatencyAG += colDelay;
+							readLatencyAG += senseAmpBP.readLatency;
+							readLatencyAG += adderBP.readLatency;
+							readLatencyAG += dffBP.readLatency;
+							readLatencyAG += shiftAddBP.readLatency;
+							
+							readLatencyADC += prechargerBP.readLatency + colDelay + senseAmpBP.readLatency;
+							readLatencyAccum += adderBP.readLatency + dffBP.readLatency + shiftAddBP.readLatency;
+							readLatencyOther += wlSwitchMatrixBP.readLatency;
 						}
-
-						if (numReadPulseBP > 1) {
-							shiftAddBP.CalculateLatency(numRowMuxedBP);	
-						}
-						// Read
-						double resPullDown = CalculateOnResistance(cell.widthSRAMCellNMOS * tech.featureSize, NMOS, inputParameter.temperature, tech);
-						double tau = (resCellAccess + resPullDown) * (capCellAccess + capRow1) + resRow * capRow1 / 2;
-						tau *= log(tech.vdd / (tech.vdd - cell.minSenseVoltage / 2));   
-						double gm = CalculateTransconductance(cell.widthAccessCMOS * tech.featureSize, NMOS, tech);
-						double beta = 1 / (resPullDown * gm);
-						double colRamp = 0;
-						colDelay = horowitz(tau, beta, wlSwitchMatrixBP.rampOutput, &colRamp);
-
-						readLatencyAG = 0;
-						readLatencyAG += MAX(wlSwitchMatrixBP.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
-						readLatencyAG += prechargerBP.readLatency;
-						readLatencyAG += colDelay;
-						readLatencyAG += multilevelSenseAmpBP.readLatency;
-						readLatencyAG += multilevelSAEncoderBP.readLatency;
-						readLatencyAG += shiftAddBP.readLatency;
-						readLatencyAG += sarADCBP.readLatency;
-						
-						readLatencyADC = prechargerBP.readLatency + colDelay + multilevelSenseAmpBP.readLatency + multilevelSAEncoderBP.readLatency + sarADCBP.readLatency;
-						readLatencyAccum = shiftAddBP.readLatency;
-						readLatencyOther = MAX(wlSwitchMatrixBP.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
-						
-					} else {
-						wlSwitchMatrixBP.CalculateLatency(1e20, capCol, resCol, numReadOperationPerCol*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite);
-						prechargerBP.CalculateLatency(1e20, capRow1, numReadOperationPerCol*numCol*activityBPColRead, numWriteOperationPerRow*numRow*activityRowWrite);
-						sramWriteDriverBP.CalculateLatency(1e20, capRow1, resRow, numWriteOperationPerRow*numRow*activityRowWrite);
-						senseAmpBP.CalculateLatency(numReadOperationPerCol*numCol*activityBPColRead);
-						dffBP.CalculateLatency(1e20, numReadOperationPerCol*numCol*activityBPColRead);
-						adderBP.CalculateLatency(1e20, dffBP.capTgDrain, numReadOperationPerCol*numCol*activityBPColRead);
-						if (numReadPulseBP > 1) {
-							shiftAdd.CalculateLatency(1);	
-						}
-						
-						double resPullDown = CalculateOnResistance(cell.widthSRAMCellNMOS * tech.featureSize, NMOS, inputParameter.temperature, tech);
-						double tau = (resCellAccess + resPullDown) * (capCellAccess + capRow1) + resRow * capRow1 / 2;
-						tau *= log(tech.vdd / (tech.vdd - cell.minSenseVoltage / 2));   
-						double gm = CalculateTransconductance(cell.widthAccessCMOS * tech.featureSize, NMOS, tech);
-						double beta = 1 / (resPullDown * gm);
-						double colRamp = 0;
-						colDelay = horowitz(tau, beta, wlSwitchMatrixBP.rampOutput, &colRamp) * numReadOperationPerCol * numCol * activityBPColRead;
-						
-						readLatencyAG += wlSwitchMatrixBP.readLatency;
-						readLatencyAG += prechargerBP.readLatency;
-						readLatencyAG += colDelay;
-						readLatencyAG += senseAmpBP.readLatency;
-						readLatencyAG += adderBP.readLatency;
-						readLatencyAG += dffBP.readLatency;
-						readLatencyAG += shiftAddBP.readLatency;
-						
-						readLatencyADC = prechargerBP.readLatency + colDelay + senseAmpBP.readLatency;
-						readLatencyAccum = adderBP.readLatency + dffBP.readLatency + shiftAddBP.readLatency;
-						readLatencyOther = wlSwitchMatrixBP.readLatency;
 					}
 				}
 				
@@ -1322,44 +1326,45 @@ void SubArray::CalculateLatency(double columnRes, const vector<double> &columnRe
 				/* Transpose Peripheral for BP */
 				if (trainingEstimation) {
 					readLatencyAG = 0;
-					double capRow = lengthRow * 0.2e-15/1e-6 + CalculateDrainCap(cell.widthAccessCMOS * tech.featureSize, NMOS, cell.widthInFeatureSize * tech.featureSize, tech) * numCol;
-					tau = (capRow)*(cell.resMemCellAvg/(numCol/2));
-					double rowDelay = tau * 0.2 * numRowMuxedBP;  // assume the 15~20% voltage drop is enough for sensing
-					
-					slSwitchMatrix.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite);
-					if (numRowMuxedBP>1) {
-						muxBP.CalculateLatency(colRamp, 0, numRowMuxedBP);
-						muxDecoderBP.CalculateLatency(1e20, muxBP.capTgGateN*ceil(numRow/numRowMuxedBP), muxBP.capTgGateP*ceil(numRow/numRowMuxedBP), numRowMuxedBP, 0);
-					}
-					if (SARADC) {
-						sarADCBP.CalculateLatency(numRowMuxedBP*numCol*activityBPColRead);
-					} else {
-						multilevelSenseAmpBP.CalculateLatency(columnResistance, numRowMuxedBP, numCol*activityBPColRead);
-						if (avgWeightBit > 1) {
-							multilevelSAEncoderBP.CalculateLatency(1e20, numRowMuxedBP*numCol*activityBPColRead);
+					if (layerNumber != 0) {
+						double capRow = lengthRow * 0.2e-15/1e-6 + CalculateDrainCap(cell.widthAccessCMOS * tech.featureSize, NMOS, cell.widthInFeatureSize * tech.featureSize, tech) * numCol;
+						tau = (capRow)*(cell.resMemCellAvg/(numCol/2));
+						double rowDelay = tau * 0.2 * numRowMuxedBP;  // assume the 15~20% voltage drop is enough for sensing
+						
+						slSwitchMatrix.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite);
+						if (numRowMuxedBP>1) {
+							muxBP.CalculateLatency(colRamp, 0, numRowMuxedBP);
+							muxDecoderBP.CalculateLatency(1e20, muxBP.capTgGateN*ceil(numRow/numRowMuxedBP), muxBP.capTgGateP*ceil(numRow/numRowMuxedBP), numRowMuxedBP, 0);
 						}
+						if (SARADC) {
+							sarADCBP.CalculateLatency(numRowMuxedBP*numCol*activityBPColRead);
+						} else {
+							multilevelSenseAmpBP.CalculateLatency(columnResistance, numRowMuxedBP, numCol*activityBPColRead);
+							if (avgWeightBit > 1) {
+								multilevelSAEncoderBP.CalculateLatency(1e20, numRowMuxedBP*numCol*activityBPColRead);
+							}
+						}
+						
+						dffBP.CalculateLatency(1e20, numRowMuxedBP*numCol*activityBPColRead);
+						adderBP.CalculateLatency(1e20, dffBP.capTgDrain, numRowMuxedBP*numCol*activityBPColRead);
+						
+						if (numReadPulseBP > 1) {
+							shiftAddBP.CalculateLatency(numRowMuxedBP);
+						}
+						
+						readLatencyAG += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
+						readLatencyAG += multilevelSenseAmpBP.readLatency;
+						readLatencyAG += multilevelSAEncoderBP.readLatency;
+						readLatencyAG += adderBP.readLatency;
+						readLatencyAG += dffBP.readLatency;
+						readLatencyAG += shiftAddBP.readLatency;
+						readLatencyAG += rowDelay/numReadPulseBP;
+						readLatencyAG += sarADCBP.readLatency;
+						
+						readLatencyADC += multilevelSenseAmpBP.readLatency + multilevelSAEncoderBP.readLatency + sarADCBP.readLatency;
+						readLatencyAccum += adderBP.readLatency + dffBP.readLatency + shiftAddBP.readLatency;
+						readLatencyOther += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP) + rowDelay/numReadPulseBP;
 					}
-					
-					dffBP.CalculateLatency(1e20, numRowMuxedBP*numCol*activityBPColRead);
-					adderBP.CalculateLatency(1e20, dffBP.capTgDrain, numRowMuxedBP*numCol*activityBPColRead);
-					
-					if (numReadPulseBP > 1) {
-						shiftAddBP.CalculateLatency(numRowMuxedBP);
-					}
-					
-					readLatencyAG += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
-					readLatencyAG += multilevelSenseAmpBP.readLatency;
-					readLatencyAG += multilevelSAEncoderBP.readLatency;
-					readLatencyAG += adderBP.readLatency;
-					readLatencyAG += dffBP.readLatency;
-					readLatencyAG += shiftAddBP.readLatency;
-					readLatencyAG += rowDelay/numReadPulseBP;
-					readLatencyAG += sarADCBP.readLatency;
-					
-					readLatencyADC += multilevelSenseAmpBP.readLatency + multilevelSAEncoderBP.readLatency + sarADCBP.readLatency;
-					readLatencyAccum += adderBP.readLatency + dffBP.readLatency + shiftAddBP.readLatency;
-					readLatencyOther += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP) + rowDelay/numReadPulseBP;
-					
 				}
 				
 			} else if (conventionalParallel) {
@@ -1414,70 +1419,72 @@ void SubArray::CalculateLatency(double columnRes, const vector<double> &columnRe
 				/* Transpose Peripheral for BP */
 				if (trainingEstimation) {
 					readLatencyAG = 0;
-					double capRow = lengthRow * 0.2e-15/1e-6 + CalculateDrainCap(cell.widthAccessCMOS * tech.featureSize, NMOS, cell.widthInFeatureSize * tech.featureSize, tech) * numCol;
-					tau = (capRow)*(cell.resMemCellAvg/(numCol/2));
-					double rowDelay = tau * 0.2 * numRowMuxedBP;  // assume the 15~20% voltage drop is enough for sensing
-					if (parallelBP) {
-						slSwitchMatrix.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP, 2*numWriteOperationPerRow*numRow*activityRowWrite);
-						if (numRowMuxedBP>1) {
-							muxBP.CalculateLatency(colRamp, 0, numRowMuxedBP);
-							muxDecoderBP.CalculateLatency(1e20, muxBP.capTgGateN*ceil(numRow/numRowMuxedBP), muxBP.capTgGateP*ceil(numRow/numRowMuxedBP), numRowMuxedBP, 0);
-						}
-						if (SARADC) {
-							sarADCBP.CalculateLatency(numRowMuxedBP);
-						} else {
-							multilevelSenseAmpBP.CalculateLatency(columnResistance, numRowMuxedBP, 1);
-							multilevelSAEncoderBP.CalculateLatency(1e20, numRowMuxedBP);
-						}
-
-						if (numReadPulseBP > 1) {
-							shiftAddBP.CalculateLatency(numRowMuxedBP);
-						}
-						
-						readLatencyAG += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
-						readLatencyAG += multilevelSenseAmpBP.readLatency;
-						readLatencyAG += multilevelSAEncoderBP.readLatency;
-						readLatencyAG += shiftAddBP.readLatency;
-						readLatencyAG += rowDelay/numReadPulseBP;
-						readLatencyAG += sarADCBP.readLatency;
-						
-						readLatencyADC += multilevelSenseAmpBP.readLatency + multilevelSAEncoderBP.readLatency + sarADCBP.readLatency;
-						readLatencyAccum += shiftAddBP.readLatency;
-						readLatencyOther += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP) + rowDelay/numReadPulseBP;
-					} else {
-						slSwitchMatrix.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite);
-						if (numRowMuxedBP>1) {
-							muxBP.CalculateLatency(colRamp, 0, numRowMuxedBP);
-							muxDecoderBP.CalculateLatency(1e20, muxBP.capTgGateN*ceil(numRow/numRowMuxedBP), muxBP.capTgGateP*ceil(numRow/numRowMuxedBP), numRowMuxedBP, 0);
-						}
-						if (SARADC) {
-							sarADCBP.CalculateLatency(numRowMuxedBP*numCol*activityBPColRead);
-						} else {
-							multilevelSenseAmpBP.CalculateLatency(columnResistance, numRowMuxedBP, numCol*activityBPColRead);
-							if (avgWeightBit > 1) {
-								multilevelSAEncoderBP.CalculateLatency(1e20, numRowMuxedBP*numCol*activityBPColRead);
+					if (layerNumber != 0) {
+						double capRow = lengthRow * 0.2e-15/1e-6 + CalculateDrainCap(cell.widthAccessCMOS * tech.featureSize, NMOS, cell.widthInFeatureSize * tech.featureSize, tech) * numCol;
+						tau = (capRow)*(cell.resMemCellAvg/(numCol/2));
+						double rowDelay = tau * 0.2 * numRowMuxedBP;  // assume the 15~20% voltage drop is enough for sensing
+						if (parallelBP) {
+							slSwitchMatrix.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP, 2*numWriteOperationPerRow*numRow*activityRowWrite);
+							if (numRowMuxedBP>1) {
+								muxBP.CalculateLatency(colRamp, 0, numRowMuxedBP);
+								muxDecoderBP.CalculateLatency(1e20, muxBP.capTgGateN*ceil(numRow/numRowMuxedBP), muxBP.capTgGateP*ceil(numRow/numRowMuxedBP), numRowMuxedBP, 0);
 							}
-						}
+							if (SARADC) {
+								sarADCBP.CalculateLatency(numRowMuxedBP);
+							} else {
+								multilevelSenseAmpBP.CalculateLatency(columnResistance, numRowMuxedBP, 1);
+								multilevelSAEncoderBP.CalculateLatency(1e20, numRowMuxedBP);
+							}
 
-						dffBP.CalculateLatency(1e20, numRowMuxedBP*numCol*activityBPColRead);
-						adderBP.CalculateLatency(1e20, dffBP.capTgDrain, numRowMuxedBP*numCol*activityBPColRead);
-						
-						if (numReadPulseBP > 1) {
-							shiftAddBP.CalculateLatency(numRowMuxedBP);
+							if (numReadPulseBP > 1) {
+								shiftAddBP.CalculateLatency(numRowMuxedBP);
+							}
+							
+							readLatencyAG += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
+							readLatencyAG += multilevelSenseAmpBP.readLatency;
+							readLatencyAG += multilevelSAEncoderBP.readLatency;
+							readLatencyAG += shiftAddBP.readLatency;
+							readLatencyAG += rowDelay/numReadPulseBP;
+							readLatencyAG += sarADCBP.readLatency;
+							
+							readLatencyADC += multilevelSenseAmpBP.readLatency + multilevelSAEncoderBP.readLatency + sarADCBP.readLatency;
+							readLatencyAccum += shiftAddBP.readLatency;
+							readLatencyOther += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP) + rowDelay/numReadPulseBP;
+						} else {
+							slSwitchMatrix.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite);
+							if (numRowMuxedBP>1) {
+								muxBP.CalculateLatency(colRamp, 0, numRowMuxedBP);
+								muxDecoderBP.CalculateLatency(1e20, muxBP.capTgGateN*ceil(numRow/numRowMuxedBP), muxBP.capTgGateP*ceil(numRow/numRowMuxedBP), numRowMuxedBP, 0);
+							}
+							if (SARADC) {
+								sarADCBP.CalculateLatency(numRowMuxedBP*numCol*activityBPColRead);
+							} else {
+								multilevelSenseAmpBP.CalculateLatency(columnResistance, numRowMuxedBP, numCol*activityBPColRead);
+								if (avgWeightBit > 1) {
+									multilevelSAEncoderBP.CalculateLatency(1e20, numRowMuxedBP*numCol*activityBPColRead);
+								}
+							}
+
+							dffBP.CalculateLatency(1e20, numRowMuxedBP*numCol*activityBPColRead);
+							adderBP.CalculateLatency(1e20, dffBP.capTgDrain, numRowMuxedBP*numCol*activityBPColRead);
+							
+							if (numReadPulseBP > 1) {
+								shiftAddBP.CalculateLatency(numRowMuxedBP);
+							}
+							
+							readLatencyAG += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
+							readLatencyAG += multilevelSenseAmpBP.readLatency;
+							readLatencyAG += multilevelSAEncoderBP.readLatency;
+							readLatencyAG += adderBP.readLatency;
+							readLatencyAG += dffBP.readLatency;
+							readLatencyAG += shiftAddBP.readLatency;
+							readLatencyAG += rowDelay/numReadPulseBP;
+							readLatencyAG += sarADCBP.readLatency;
+							
+							readLatencyADC += multilevelSenseAmpBP.readLatency + multilevelSAEncoderBP.readLatency + sarADCBP.readLatency;
+							readLatencyAccum += adderBP.readLatency + dffBP.readLatency + shiftAddBP.readLatency;
+							readLatencyOther += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP) + rowDelay/numReadPulseBP;
 						}
-						
-						readLatencyAG += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP);
-						readLatencyAG += multilevelSenseAmpBP.readLatency;
-						readLatencyAG += multilevelSAEncoderBP.readLatency;
-						readLatencyAG += adderBP.readLatency;
-						readLatencyAG += dffBP.readLatency;
-						readLatencyAG += shiftAddBP.readLatency;
-						readLatencyAG += rowDelay/numReadPulseBP;
-						readLatencyAG += sarADCBP.readLatency;
-						
-						readLatencyADC += multilevelSenseAmpBP.readLatency + multilevelSAEncoderBP.readLatency + sarADCBP.readLatency;
-						readLatencyAccum += adderBP.readLatency + dffBP.readLatency + shiftAddBP.readLatency;
-						readLatencyOther += MAX(slSwitchMatrix.readLatency, ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP) + rowDelay/numReadPulseBP;
 					}
 				}
 				
@@ -1667,39 +1674,41 @@ void SubArray::CalculatePower(const vector<double> &columnResistance, const vect
 				/* Transpose Peripheral for BP */
 				if (trainingEstimation) {
 					readDynamicEnergyAG = 0;
-					int numReadOperationPerCol = numRow / numReadCellPerOperationNeuro;
-					
-					wlDecoderBP.CalculatePower(numCol*activityBPColRead, numRow*activityRowWrite);
-					prechargerBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numWriteOperationPerRow*numRow*activityRowWrite);
-					sramWriteDriverBP.CalculatePower(numWriteOperationPerRow*numCol*activityBPColRead);
-					adderBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numReadCellPerOperationNeuro/numCellPerSynapse);				
-					dffBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numReadCellPerOperationNeuro/numCellPerSynapse*(adder.numBit+1));
-					senseAmpBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead);
-					if (numReadPulseBP > 1) {
-						shiftAddBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead);
+					if (layerNumber != 0) {
+						int numReadOperationPerCol = numRow / numReadCellPerOperationNeuro;
+						
+						wlDecoderBP.CalculatePower(numCol*activityBPColRead, numRow*activityRowWrite);
+						prechargerBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numWriteOperationPerRow*numRow*activityRowWrite);
+						sramWriteDriverBP.CalculatePower(numWriteOperationPerRow*numCol*activityBPColRead);
+						adderBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numReadCellPerOperationNeuro/numCellPerSynapse);				
+						dffBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numReadCellPerOperationNeuro/numCellPerSynapse*(adder.numBit+1));
+						senseAmpBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead);
+						if (numReadPulseBP > 1) {
+							shiftAddBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead);
+						}
+						// Array
+						readDynamicEnergyArray = 0; // Just BL discharging
+						
+						// Read
+						readDynamicEnergyAG += wlDecoderBP.readDynamicEnergy;
+						readDynamicEnergyAG += prechargerBP.readDynamicEnergy;
+						readDynamicEnergyAG += readDynamicEnergyArray;
+						readDynamicEnergyAG += adderBP.readDynamicEnergy;
+						readDynamicEnergyAG += dffBP.readDynamicEnergy;
+						readDynamicEnergyAG += senseAmpBP.readDynamicEnergy;
+						readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
+						
+						readDynamicEnergyADC += prechargerBP.readDynamicEnergy + readDynamicEnergyArray + senseAmpBP.readDynamicEnergy;
+						readDynamicEnergyAccum += adderBP.readDynamicEnergy + dffBP.readDynamicEnergy + shiftAddBP.readDynamicEnergy;
+						readDynamicEnergyOther += wlDecoderBP.readDynamicEnergy;
+						
+						leakage += wlDecoderBP.leakage;
+						leakage += prechargerBP.leakage;
+						leakage += adderBP.leakage;
+						leakage += dffBP.leakage;
+						leakage += senseAmpBP.leakage;
+						leakage += shiftAddBP.leakage;
 					}
-					// Array
-					readDynamicEnergyArray = 0; // Just BL discharging
-					
-					// Read
-					readDynamicEnergyAG += wlDecoderBP.readDynamicEnergy;
-					readDynamicEnergyAG += prechargerBP.readDynamicEnergy;
-					readDynamicEnergyAG += readDynamicEnergyArray;
-					readDynamicEnergyAG += adderBP.readDynamicEnergy;
-					readDynamicEnergyAG += dffBP.readDynamicEnergy;
-					readDynamicEnergyAG += senseAmpBP.readDynamicEnergy;
-					readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
-					
-					readDynamicEnergyADC = prechargerBP.readDynamicEnergy + readDynamicEnergyArray + senseAmpBP.readDynamicEnergy;
-					readDynamicEnergyAccum = adderBP.readDynamicEnergy + dffBP.readDynamicEnergy + shiftAddBP.readDynamicEnergy;
-					readDynamicEnergyOther = wlDecoderBP.readDynamicEnergy;
-					
-					leakage += wlDecoderBP.leakage;
-					leakage += prechargerBP.leakage;
-					leakage += adderBP.leakage;
-					leakage += dffBP.leakage;
-					leakage += senseAmpBP.leakage;
-					leakage += shiftAddBP.leakage;
 				}
 				
 				// Write
@@ -1756,83 +1765,85 @@ void SubArray::CalculatePower(const vector<double> &columnResistance, const vect
 				/* Transpose Peripheral for BP */
 				if (trainingEstimation) {
 					readDynamicEnergyAG = 0;
-					if (parallelBP) {
-						wlSwitchMatrixBP.CalculatePower(numRowMuxedBP, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
-						prechargerBP.CalculatePower(numRowMuxedBP, numWriteOperationPerRow*numRow*activityRowWrite);
-						sramWriteDriverBP.CalculatePower(numWriteOperationPerRow*numRow*activityRowWrite);
-						if (numRowMuxedBP>1) {
-							muxBP.CalculatePower(numRowMuxedBP);	// Mux still consumes energy during row-by-row read
-							muxDecoderBP.CalculatePower(numRowMuxedBP, 1);
-						}
-						if (SARADC) {
-							sarADCBP.CalculatePower(columnResistance, 1);
+					if (layerNumber != 0) {
+						if (parallelBP) {
+							wlSwitchMatrixBP.CalculatePower(numRowMuxedBP, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
+							prechargerBP.CalculatePower(numRowMuxedBP, numWriteOperationPerRow*numRow*activityRowWrite);
+							sramWriteDriverBP.CalculatePower(numWriteOperationPerRow*numRow*activityRowWrite);
+							if (numRowMuxedBP>1) {
+								muxBP.CalculatePower(numRowMuxedBP);	// Mux still consumes energy during row-by-row read
+								muxDecoderBP.CalculatePower(numRowMuxedBP, 1);
+							}
+							if (SARADC) {
+								sarADCBP.CalculatePower(columnResistance, 1);
+							} else {
+								multilevelSenseAmpBP.CalculatePower(columnResistance, 1);
+								multilevelSAEncoderBP.CalculatePower(numRowMuxedBP);
+							}
+
+							if (numReadPulseBP > 1) {
+								shiftAddBP.CalculatePower(numRowMuxedBP);
+							}
+							// Array
+							readDynamicEnergyArray = 0; // Just BL discharging
+							
+							// Read
+							readDynamicEnergyAG += wlSwitchMatrixBP.readDynamicEnergy;
+							readDynamicEnergyAG += prechargerBP.readDynamicEnergy;
+							readDynamicEnergyAG += readDynamicEnergyArray;
+							readDynamicEnergyAG += multilevelSenseAmpBP.readDynamicEnergy;
+							readDynamicEnergyAG += multilevelSAEncoderBP.readDynamicEnergy;
+							readDynamicEnergyAG += ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy/numReadPulseBP):0);
+							readDynamicEnergyAG += ((numRowMuxedBP > 1)==true? (muxDecoderBP.readDynamicEnergy/numReadPulseBP):0);
+							readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
+							readDynamicEnergyAG += sarADCBP.readDynamicEnergy;
+
+							readDynamicEnergyADC += prechargerBP.readDynamicEnergy + readDynamicEnergyArray + multilevelSenseAmpBP.readDynamicEnergy + multilevelSAEncoderBP.readDynamicEnergy + sarADCBP.readDynamicEnergy;
+							readDynamicEnergyAccum += shiftAddBP.readDynamicEnergy;
+							readDynamicEnergyOther += wlSwitchMatrixBP.readDynamicEnergy + ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
+							
+							leakage += wlSwitchMatrixBP.leakage;
+							leakage += prechargerBP.leakage;
+							leakage += multilevelSenseAmpBP.leakage;
+							leakage += multilevelSAEncoderBP.leakage;
+							leakage += muxBP.leakage;
+							leakage += muxDecoderBP.leakage;
+							leakage += shiftAddBP.leakage;
 						} else {
-							multilevelSenseAmpBP.CalculatePower(columnResistance, 1);
-							multilevelSAEncoderBP.CalculatePower(numRowMuxedBP);
+							int numReadOperationPerCol = numRow / numReadCellPerOperationNeuro;
+							
+							wlSwitchMatrixBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
+							prechargerBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numWriteOperationPerRow*numRow*activityRowWrite);
+							sramWriteDriverBP.CalculatePower(numWriteOperationPerRow*numCol*activityBPColRead);
+							adderBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numReadCellPerOperationNeuro/numCellPerSynapse);				
+							dffBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numReadCellPerOperationNeuro/numCellPerSynapse*(adder.numBit+1));
+							senseAmpBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead);
+							if (numReadPulseBP > 1) {
+								shiftAddBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead);
+							}
+							// Array
+							readDynamicEnergyArray = 0; // Just BL discharging
+							
+							// Read
+							readDynamicEnergyAG += wlSwitchMatrixBP.readDynamicEnergy;
+							readDynamicEnergyAG += prechargerBP.readDynamicEnergy;
+							readDynamicEnergyAG += readDynamicEnergyArray;
+							readDynamicEnergyAG += adderBP.readDynamicEnergy;
+							readDynamicEnergyAG += dffBP.readDynamicEnergy;
+							readDynamicEnergyAG += senseAmpBP.readDynamicEnergy;
+							readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
+							
+							readDynamicEnergyADC += prechargerBP.readDynamicEnergy + readDynamicEnergyArray + senseAmpBP.readDynamicEnergy;
+							readDynamicEnergyAccum += adderBP.readDynamicEnergy + dffBP.readDynamicEnergy + shiftAddBP.readDynamicEnergy;
+							readDynamicEnergyOther += wlSwitchMatrixBP.readDynamicEnergy;
+							
+							leakage += wlSwitchMatrixBP.leakage;
+							leakage += prechargerBP.leakage;
+							leakage += adderBP.leakage;
+							leakage += dffBP.leakage;
+							leakage += senseAmpBP.leakage;
+							leakage += shiftAddBP.leakage;
 						}
-
-						if (numReadPulseBP > 1) {
-							shiftAddBP.CalculatePower(numRowMuxedBP);
-						}
-						// Array
-						readDynamicEnergyArray = 0; // Just BL discharging
-						
-						// Read
-						readDynamicEnergyAG += wlSwitchMatrixBP.readDynamicEnergy;
-						readDynamicEnergyAG += prechargerBP.readDynamicEnergy;
-						readDynamicEnergyAG += readDynamicEnergyArray;
-						readDynamicEnergyAG += multilevelSenseAmpBP.readDynamicEnergy;
-						readDynamicEnergyAG += multilevelSAEncoderBP.readDynamicEnergy;
-						readDynamicEnergyAG += ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy/numReadPulseBP):0);
-						readDynamicEnergyAG += ((numRowMuxedBP > 1)==true? (muxDecoderBP.readDynamicEnergy/numReadPulseBP):0);
-						readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
-						readDynamicEnergyAG += sarADCBP.readDynamicEnergy;
-
-						readDynamicEnergyADC = prechargerBP.readDynamicEnergy + readDynamicEnergyArray + multilevelSenseAmpBP.readDynamicEnergy + multilevelSAEncoderBP.readDynamicEnergy + sarADCBP.readDynamicEnergy;
-						readDynamicEnergyAccum = shiftAddBP.readDynamicEnergy;
-						readDynamicEnergyOther = wlSwitchMatrixBP.readDynamicEnergy + ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
-						
-						leakage += wlSwitchMatrixBP.leakage;
-						leakage += prechargerBP.leakage;
-						leakage += multilevelSenseAmpBP.leakage;
-						leakage += multilevelSAEncoderBP.leakage;
-						leakage += muxBP.leakage;
-						leakage += muxDecoderBP.leakage;
-						leakage += shiftAddBP.leakage;
-					} else {
-						int numReadOperationPerCol = numRow / numReadCellPerOperationNeuro;
-						
-						wlSwitchMatrixBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
-						prechargerBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numWriteOperationPerRow*numRow*activityRowWrite);
-						sramWriteDriverBP.CalculatePower(numWriteOperationPerRow*numCol*activityBPColRead);
-						adderBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numReadCellPerOperationNeuro/numCellPerSynapse);				
-						dffBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead, numReadCellPerOperationNeuro/numCellPerSynapse*(adder.numBit+1));
-						senseAmpBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead);
-						if (numReadPulseBP > 1) {
-							shiftAddBP.CalculatePower(numReadOperationPerCol*numCol*activityBPColRead);
-						}
-						// Array
-						readDynamicEnergyArray = 0; // Just BL discharging
-						
-						// Read
-						readDynamicEnergyAG += wlSwitchMatrixBP.readDynamicEnergy;
-						readDynamicEnergyAG += prechargerBP.readDynamicEnergy;
-						readDynamicEnergyAG += readDynamicEnergyArray;
-						readDynamicEnergyAG += adderBP.readDynamicEnergy;
-						readDynamicEnergyAG += dffBP.readDynamicEnergy;
-						readDynamicEnergyAG += senseAmpBP.readDynamicEnergy;
-						readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
-						
-						readDynamicEnergyADC = prechargerBP.readDynamicEnergy + readDynamicEnergyArray + senseAmpBP.readDynamicEnergy;
-						readDynamicEnergyAccum = adderBP.readDynamicEnergy + dffBP.readDynamicEnergy + shiftAddBP.readDynamicEnergy;
-						readDynamicEnergyOther = wlSwitchMatrixBP.readDynamicEnergy;
-						
-						leakage += wlSwitchMatrixBP.leakage;
-						leakage += prechargerBP.leakage;
-						leakage += adderBP.leakage;
-						leakage += dffBP.leakage;
-						leakage += senseAmpBP.leakage;
-						leakage += shiftAddBP.leakage;
 					}
 				}
 				
@@ -2023,55 +2034,56 @@ void SubArray::CalculatePower(const vector<double> &columnResistance, const vect
 				/* Transpose Peripheral for BP */
 				if (trainingEstimation) {
 					readDynamicEnergyAG = 0;
-					
-					readDynamicEnergyArray = 0;
-					readDynamicEnergyArray += capBL * cell.readVoltage * cell.readVoltage * numReadCells; // Selected BLs activityColWrite
-					readDynamicEnergyArray += capRow2 * tech.vdd * tech.vdd; // Selected WL
-					readDynamicEnergyArray *= numRow * activityBPColRead * numRowMuxedBP;
-					
-					slSwitchMatrix.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
-					if (numRowMuxedBP>1) {
-						muxBP.CalculatePower(numRowMuxedBP);	// Mux still consumes energy during row-by-row read
-						muxDecoderBP.CalculatePower(numRowMuxedBP, 1);
-					}
-					
-					if (SARADC) {
-						sarADCBP.CalculatePower(columnResistance, numCol*activityBPColRead);
-					} else {
-						multilevelSenseAmpBP.CalculatePower(columnResistance, numCol*activityBPColRead);
-						if (avgWeightBit > 1) {
-							multilevelSAEncoderBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead);
+					if (layerNumber != 0) {
+						readDynamicEnergyArray = 0;
+						readDynamicEnergyArray += capBL * cell.readVoltage * cell.readVoltage * numReadCells; // Selected BLs activityColWrite
+						readDynamicEnergyArray += capRow2 * tech.vdd * tech.vdd; // Selected WL
+						readDynamicEnergyArray *= numRow * activityBPColRead * numRowMuxedBP;
+						
+						slSwitchMatrix.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
+						if (numRowMuxedBP>1) {
+							muxBP.CalculatePower(numRowMuxedBP);	// Mux still consumes energy during row-by-row read
+							muxDecoderBP.CalculatePower(numRowMuxedBP, 1);
 						}
+						
+						if (SARADC) {
+							sarADCBP.CalculatePower(columnResistance, numCol*activityBPColRead);
+						} else {
+							multilevelSenseAmpBP.CalculatePower(columnResistance, numCol*activityBPColRead);
+							if (avgWeightBit > 1) {
+								multilevelSAEncoderBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead);
+							}
+						}
+						
+						dffBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, ceil(numRow/numRowMuxedBP)*(adderBP.numBit+1)); 
+						adderBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, ceil(numRow/numRowMuxedBP));
+						
+						if (numReadPulseBP > 1) {
+							shiftAddBP.CalculatePower(numRowMuxedBP);
+						}
+						
+						readDynamicEnergyAG += slSwitchMatrix.readDynamicEnergy;
+						readDynamicEnergyAG += ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
+						readDynamicEnergyAG += multilevelSenseAmpBP.readDynamicEnergy;
+						readDynamicEnergyAG += multilevelSAEncoderBP.readDynamicEnergy;
+						readDynamicEnergyAG += dffBP.readDynamicEnergy;
+						readDynamicEnergyAG += adderBP.readDynamicEnergy;
+						readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
+						readDynamicEnergyAG += readDynamicEnergyArray;
+						readDynamicEnergyAG += sarADCBP.readDynamicEnergy;
+						
+						readDynamicEnergyADC += multilevelSenseAmpBP.readDynamicEnergy + multilevelSAEncoderBP.readDynamicEnergy + readDynamicEnergyArray + sarADCBP.readDynamicEnergy;
+						readDynamicEnergyAccum += dffBP.readDynamicEnergy + adderBP.readDynamicEnergy + shiftAddBP.readDynamicEnergy;
+						readDynamicEnergyOther += slSwitchMatrix.readDynamicEnergy + ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
+						
+						leakage += slSwitchMatrix.leakage;
+						leakage += (muxBP.leakage+muxDecoderBP.leakage);
+						leakage += multilevelSenseAmpBP.leakage;
+						leakage += multilevelSAEncoderBP.leakage;
+						leakage += dffBP.leakage;
+						leakage += adderBP.leakage;
+						leakage += shiftAddBP.leakage;
 					}
-					
-					dffBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, ceil(numRow/numRowMuxedBP)*(adderBP.numBit+1)); 
-					adderBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, ceil(numRow/numRowMuxedBP));
-					
-					if (numReadPulseBP > 1) {
-						shiftAddBP.CalculatePower(numRowMuxedBP);
-					}
-					
-					readDynamicEnergyAG += slSwitchMatrix.readDynamicEnergy;
-					readDynamicEnergyAG += ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
-					readDynamicEnergyAG += multilevelSenseAmpBP.readDynamicEnergy;
-					readDynamicEnergyAG += multilevelSAEncoderBP.readDynamicEnergy;
-					readDynamicEnergyAG += dffBP.readDynamicEnergy;
-					readDynamicEnergyAG += adderBP.readDynamicEnergy;
-					readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
-					readDynamicEnergyAG += readDynamicEnergyArray;
-					readDynamicEnergyAG += sarADCBP.readDynamicEnergy;
-					
-					readDynamicEnergyADC += multilevelSenseAmpBP.readDynamicEnergy + multilevelSAEncoderBP.readDynamicEnergy + readDynamicEnergyArray + sarADCBP.readDynamicEnergy;
-					readDynamicEnergyAccum += dffBP.readDynamicEnergy + adderBP.readDynamicEnergy + shiftAddBP.readDynamicEnergy;
-					readDynamicEnergyOther += slSwitchMatrix.readDynamicEnergy + ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
-					
-					leakage += slSwitchMatrix.leakage;
-					leakage += (muxBP.leakage+muxDecoderBP.leakage);
-					leakage += multilevelSenseAmpBP.leakage;
-					leakage += multilevelSAEncoderBP.leakage;
-					leakage += dffBP.leakage;
-					leakage += adderBP.leakage;
-					leakage += shiftAddBP.leakage;
 				}
 				
 				// Write
@@ -2147,97 +2159,99 @@ void SubArray::CalculatePower(const vector<double> &columnResistance, const vect
 				/* Transpose Peripheral for BP */
 				if (trainingEstimation) {
 					readDynamicEnergyAG = 0;
-					if (parallelBP) {
-						readDynamicEnergyArray = 0;
-						readDynamicEnergyArray += capBL * cell.readVoltage * cell.readVoltage * numReadCells; // Selected BLs activityColWrite
-						readDynamicEnergyArray += capRow2 * tech.vdd * tech.vdd * numRow * activityBPColRead; // Selected WL
-						readDynamicEnergyArray *= numRowMuxedBP;
-						
-						slSwitchMatrix.CalculatePower(numRowMuxedBP, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
-						
-						if (numRowMuxedBP>1) {
-							muxBP.CalculatePower(numRowMuxedBP);	// Mux still consumes energy during row-by-row read
-							muxDecoderBP.CalculatePower(numRowMuxedBP, 1);
-						}
-						
-						if (SARADC) {
-							sarADCBP.CalculatePower(columnResistance, 1);
-						} else {
-							multilevelSenseAmpBP.CalculatePower(columnResistance, 1);
-							multilevelSAEncoderBP.CalculatePower(numRowMuxedBP);
-						}
-
-						if (numReadPulseBP > 1) {
-							shiftAddBP.CalculatePower(numRowMuxedBP);
-						}
-						
-						readDynamicEnergyAG += slSwitchMatrix.readDynamicEnergy;
-						readDynamicEnergyAG +=( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
-						readDynamicEnergyAG += multilevelSenseAmpBP.readDynamicEnergy;
-						readDynamicEnergyAG += multilevelSAEncoderBP.readDynamicEnergy;
-						readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
-						readDynamicEnergyAG += readDynamicEnergyArray;
-						readDynamicEnergyAG += sarADCBP.readDynamicEnergy;
-						
-						readDynamicEnergyADC += multilevelSenseAmpBP.readDynamicEnergy + multilevelSAEncoderBP.readDynamicEnergy + readDynamicEnergyArray + sarADCBP.readDynamicEnergy;
-						readDynamicEnergyAccum += shiftAddBP.readDynamicEnergy;
-						readDynamicEnergyOther += slSwitchMatrix.readDynamicEnergy + ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
-						
-						leakage += slSwitchMatrix.leakage;
-						leakage += (muxBP.leakage+muxDecoderBP.leakage);
-						leakage += multilevelSenseAmpBP.leakage;
-						leakage += multilevelSAEncoderBP.leakage;
-						leakage += shiftAddBP.leakage;
-					} else {
-						readDynamicEnergyArray = 0;
-						readDynamicEnergyArray += capBL * cell.readVoltage * cell.readVoltage * numReadCells; // Selected BLs activityColWrite
-						readDynamicEnergyArray += capRow2 * tech.vdd * tech.vdd; // Selected WL
-						readDynamicEnergyArray *= numRow * activityBPColRead * numRowMuxedBP;
-						
-						slSwitchMatrix.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
-						
-						if (numRowMuxedBP>1) {
-							muxBP.CalculatePower(numRowMuxedBP);	// Mux still consumes energy during row-by-row read
-							muxDecoderBP.CalculatePower(numRowMuxedBP, 1);
-						}
-						
-						if (SARADC) {
-							sarADCBP.CalculatePower(columnResistance, numCol*activityBPColRead);
-						} else {
-							multilevelSenseAmpBP.CalculatePower(columnResistance, numCol*activityBPColRead);
-							if (avgWeightBit > 1) {
-								multilevelSAEncoderBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead);
+					if (layerNumber != 0) {
+						if (parallelBP) {
+							readDynamicEnergyArray = 0;
+							readDynamicEnergyArray += capBL * cell.readVoltage * cell.readVoltage * numReadCells; // Selected BLs activityColWrite
+							readDynamicEnergyArray += capRow2 * tech.vdd * tech.vdd * numRow * activityBPColRead; // Selected WL
+							readDynamicEnergyArray *= numRowMuxedBP;
+							
+							slSwitchMatrix.CalculatePower(numRowMuxedBP, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
+							
+							if (numRowMuxedBP>1) {
+								muxBP.CalculatePower(numRowMuxedBP);	// Mux still consumes energy during row-by-row read
+								muxDecoderBP.CalculatePower(numRowMuxedBP, 1);
 							}
-						}
+							
+							if (SARADC) {
+								sarADCBP.CalculatePower(columnResistance, 1);
+							} else {
+								multilevelSenseAmpBP.CalculatePower(columnResistance, 1);
+								multilevelSAEncoderBP.CalculatePower(numRowMuxedBP);
+							}
 
-						dffBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, ceil(numRow/numRowMuxedBP)*(adderBP.numBit+1)); 
-						adderBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, ceil(numRow/numRowMuxedBP));
-						
-						if (numReadPulseBP > 1) {
-							shiftAddBP.CalculatePower(numRowMuxedBP);
+							if (numReadPulseBP > 1) {
+								shiftAddBP.CalculatePower(numRowMuxedBP);
+							}
+							
+							readDynamicEnergyAG += slSwitchMatrix.readDynamicEnergy;
+							readDynamicEnergyAG +=( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
+							readDynamicEnergyAG += multilevelSenseAmpBP.readDynamicEnergy;
+							readDynamicEnergyAG += multilevelSAEncoderBP.readDynamicEnergy;
+							readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
+							readDynamicEnergyAG += readDynamicEnergyArray;
+							readDynamicEnergyAG += sarADCBP.readDynamicEnergy;
+							
+							readDynamicEnergyADC += multilevelSenseAmpBP.readDynamicEnergy + multilevelSAEncoderBP.readDynamicEnergy + readDynamicEnergyArray + sarADCBP.readDynamicEnergy;
+							readDynamicEnergyAccum += shiftAddBP.readDynamicEnergy;
+							readDynamicEnergyOther += slSwitchMatrix.readDynamicEnergy + ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
+							
+							leakage += slSwitchMatrix.leakage;
+							leakage += (muxBP.leakage+muxDecoderBP.leakage);
+							leakage += multilevelSenseAmpBP.leakage;
+							leakage += multilevelSAEncoderBP.leakage;
+							leakage += shiftAddBP.leakage;
+						} else {
+							readDynamicEnergyArray = 0;
+							readDynamicEnergyArray += capBL * cell.readVoltage * cell.readVoltage * numReadCells; // Selected BLs activityColWrite
+							readDynamicEnergyArray += capRow2 * tech.vdd * tech.vdd; // Selected WL
+							readDynamicEnergyArray *= numRow * activityBPColRead * numRowMuxedBP;
+							
+							slSwitchMatrix.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite, activityRowRead, activityColWrite);
+							
+							if (numRowMuxedBP>1) {
+								muxBP.CalculatePower(numRowMuxedBP);	// Mux still consumes energy during row-by-row read
+								muxDecoderBP.CalculatePower(numRowMuxedBP, 1);
+							}
+							
+							if (SARADC) {
+								sarADCBP.CalculatePower(columnResistance, numCol*activityBPColRead);
+							} else {
+								multilevelSenseAmpBP.CalculatePower(columnResistance, numCol*activityBPColRead);
+								if (avgWeightBit > 1) {
+									multilevelSAEncoderBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead);
+								}
+							}
+
+							dffBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, ceil(numRow/numRowMuxedBP)*(adderBP.numBit+1)); 
+							adderBP.CalculatePower(numRowMuxedBP*numCol*activityBPColRead, ceil(numRow/numRowMuxedBP));
+							
+							if (numReadPulseBP > 1) {
+								shiftAddBP.CalculatePower(numRowMuxedBP);
+							}
+							
+							readDynamicEnergyAG += slSwitchMatrix.readDynamicEnergy;
+							readDynamicEnergyAG += ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
+							readDynamicEnergyAG += multilevelSenseAmpBP.readDynamicEnergy;
+							readDynamicEnergyAG += multilevelSAEncoderBP.readDynamicEnergy;
+							readDynamicEnergyAG += dffBP.readDynamicEnergy;
+							readDynamicEnergyAG += adderBP.readDynamicEnergy;
+							readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
+							readDynamicEnergyAG += readDynamicEnergyArray;
+							readDynamicEnergyAG += sarADCBP.readDynamicEnergy;
+							
+							readDynamicEnergyADC += multilevelSenseAmpBP.readDynamicEnergy + multilevelSAEncoderBP.readDynamicEnergy + readDynamicEnergyArray + sarADCBP.readDynamicEnergy;
+							readDynamicEnergyAccum += dffBP.readDynamicEnergy + adderBP.readDynamicEnergy + shiftAddBP.readDynamicEnergy;
+							readDynamicEnergyOther += slSwitchMatrix.readDynamicEnergy + ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
+							
+							leakage += slSwitchMatrix.leakage;
+							leakage += (muxBP.leakage+muxDecoderBP.leakage);
+							leakage += multilevelSenseAmpBP.leakage;
+							leakage += multilevelSAEncoderBP.leakage;
+							leakage += dffBP.leakage;
+							leakage += adderBP.leakage;
+							leakage += shiftAddBP.leakage;
 						}
-						
-						readDynamicEnergyAG += slSwitchMatrix.readDynamicEnergy;
-						readDynamicEnergyAG += ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
-						readDynamicEnergyAG += multilevelSenseAmpBP.readDynamicEnergy;
-						readDynamicEnergyAG += multilevelSAEncoderBP.readDynamicEnergy;
-						readDynamicEnergyAG += dffBP.readDynamicEnergy;
-						readDynamicEnergyAG += adderBP.readDynamicEnergy;
-						readDynamicEnergyAG += shiftAddBP.readDynamicEnergy;
-						readDynamicEnergyAG += readDynamicEnergyArray;
-						readDynamicEnergyAG += sarADCBP.readDynamicEnergy;
-						
-						readDynamicEnergyADC += multilevelSenseAmpBP.readDynamicEnergy + multilevelSAEncoderBP.readDynamicEnergy + readDynamicEnergyArray + sarADCBP.readDynamicEnergy;
-						readDynamicEnergyAccum += dffBP.readDynamicEnergy + adderBP.readDynamicEnergy + shiftAddBP.readDynamicEnergy;
-						readDynamicEnergyOther += slSwitchMatrix.readDynamicEnergy + ( ((numRowMuxedBP > 1)==true? (muxBP.readDynamicEnergy + muxDecoderBP.readDynamicEnergy):0) )/numReadPulseBP;
-						
-						leakage += slSwitchMatrix.leakage;
-						leakage += (muxBP.leakage+muxDecoderBP.leakage);
-						leakage += multilevelSenseAmpBP.leakage;
-						leakage += multilevelSAEncoderBP.leakage;
-						leakage += dffBP.leakage;
-						leakage += adderBP.leakage;
-						leakage += shiftAddBP.leakage;
 					}
 				}
 				

@@ -131,7 +131,7 @@ public:
 	bool parallelBP, trainingEstimation;	
 	bool currentMode;
 
-	int levelOutput, numReadPulseBP, levelOutputBP, numRowMuxedBP;
+	int levelOutput, numReadPulseBP, levelOutputBP, numRowMuxedBP, layerNumber;
 	
 	ReadCircuitMode readCircuitMode;
 	int numWriteCellPerOperationFPGA;   // Parameter for SRAM
