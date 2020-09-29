@@ -263,7 +263,7 @@ Param::Param() {
 			wireLengthCol = wireWidth * 1e-9 * widthInFeatureSizeCrossbar;
 		}
 	}
-	
+	Rho *= (1+0.00451*(temp-300));
 	if (wireWidth == -1) {
 		unitLengthWireResistance = 1.0;	// Use a small number to prevent numerical error for NeuroSim
 		wireResistanceRow = 0;
