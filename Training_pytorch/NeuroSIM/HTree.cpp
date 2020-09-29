@@ -405,7 +405,7 @@ double HTree::GetUnitLengthRes(double wireLength) {
 		AR = 2.10; 
 		Rho = 7.43e-8;
 	} 
-	
+	Rho *= (1+0.00451*(param->temp-300));
 	if (wireWidth == -1) {
 		unitLengthWireResistance = 1.0;	// Use a small number to prevent numerical error for NeuroSim
 	} else {
