@@ -229,8 +229,7 @@ double SarADC::GetColumnPower(double columnRes) {
 			}
 		}
 	}
-	
+	Column_Power *= (1+1.3e-3*(param->temp-300));
 	Column_Energy = Column_Power * (log2(levelOutput)+1)*1e-9;
-
 	return Column_Energy;
 }
