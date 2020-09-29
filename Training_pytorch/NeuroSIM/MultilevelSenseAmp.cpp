@@ -454,5 +454,6 @@ double MultilevelSenseAmp::GetColumnPower(double columnRes) {
 			}
 		}
 	}
+	Column_Power *= (1+1.3e-3*(param->temp-300));
 	return Column_Power;
 }
