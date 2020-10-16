@@ -1270,7 +1270,7 @@ void SubArray::CalculateLatency(double columnRes, const vector<double> &columnRe
 			if (conventionalSequential) {
 				double capBL = lengthCol * 0.2e-15/1e-6;
 				double colRamp = 0;
-				double tau = (capCol)*(cell.resMemCellAvg/(numRow/2));
+				double tau = (capCol)*(cell.resMemCellAvg);
 				colDelay = horowitz(tau, 0, 1e20, &colRamp);	// Just to generate colRamp
 				colDelay = tau * 0.2 * numColMuxed;  // assume the 15~20% voltage drop is enough for sensing
 				int numWriteOperationPerRow = (int)ceil((double)numCol*activityColWrite/numWriteCellPerOperationNeuro);
@@ -1328,7 +1328,7 @@ void SubArray::CalculateLatency(double columnRes, const vector<double> &columnRe
 					readLatencyAG = 0;
 					if (layerNumber != 0) {
 						double capRow = lengthRow * 0.2e-15/1e-6 + CalculateDrainCap(cell.widthAccessCMOS * tech.featureSize, NMOS, cell.widthInFeatureSize * tech.featureSize, tech) * numCol;
-						tau = (capRow)*(cell.resMemCellAvg/(numCol/2));
+						tau = (capRow)*(cell.resMemCellAvg);
 						double rowDelay = tau * 0.2 * numRowMuxedBP;  // assume the 15~20% voltage drop is enough for sensing
 						
 						slSwitchMatrix.CalculateLatency(1e20, capCol, resCol, numRowMuxedBP*numCol*activityBPColRead, 2*numWriteOperationPerRow*numRow*activityRowWrite);
@@ -1491,7 +1491,7 @@ void SubArray::CalculateLatency(double columnRes, const vector<double> &columnRe
 			} else if (BNNsequentialMode || XNORsequentialMode) {
 				double capBL = lengthCol * 0.2e-15/1e-6;
 				double colRamp = 0;
-				double tau = (capCol)*(cell.resMemCellAvg/(numRow/2));
+				double tau = (capCol)*(cell.resMemCellAvg);
 				colDelay = horowitz(tau, 0, 1e20, &colRamp);	// Just to generate colRamp
 				colDelay = tau * 0.2 * numColMuxed;  // assume the 15~20% voltage drop is enough for sensing
 				int numWriteOperationPerRow = (int)ceil((double)numCol*activityColWrite/numWriteCellPerOperationNeuro);
