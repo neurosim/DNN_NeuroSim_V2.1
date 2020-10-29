@@ -170,6 +170,7 @@ void ProcessingUnitInitialize(SubArray *& subArray, InputParameter& inputParamet
 	subArray->activityBPColRead = 0.5;
 	subArray->SARADC = param->SARADC;
 	subArray->currentMode = param->currentMode;
+	subArray->spikingMode = NONSPIKING;
 	
 	int numRow = param->numRowSubArray;
 	int numCol = param->numColSubArray;
