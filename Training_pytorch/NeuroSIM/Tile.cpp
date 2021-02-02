@@ -176,7 +176,7 @@ void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
 		} else {
 			inputBufferNM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 		}
-		hTreeNM->Initialize(numPENM, numPENM, param->localBusDelayTolerance, numPENM*param->numRowSubArray);
+		hTreeNM->Initialize(ceil(sqrt((double)numPENM)), ceil(sqrt((double)numPENM)), param->localBusDelayTolerance, ceil(sqrt((double)numPENM))*param->numRowSubArray);
 	} 
 	if (param->parallelRead) {
 		accumulationCM->Initialize(numPECM, ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)), 
