@@ -332,7 +332,7 @@ vector<vector<double> > ChipFloorPlan(bool findNumTile, bool findUtilization, bo
 	vector<vector<double> > tileLocaEachLayer;
 	vector<double> tileLocaEachLayerRow;
 	vector<double> tileLocaEachLayerCol;
-	double thisTileTotal;
+	double thisTileTotal=0;
 	for (int i=0; i<netStructure.size(); i++) {
 		if (i==0) {
 			tileLocaEachLayerRow.push_back(0);
