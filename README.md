@@ -23,7 +23,7 @@ currentMode = true;       // false: MLSA use VSA    // true: MLSA use CSA
 
 <br/>
 
-**_For estimation of inference engine, please visit released V1.2 [DNN+NeuroSim V1.2](https://github.com/neurosim/DNN_NeuroSim_V1.2)_**
+**_For estimation of inference engine, please visit released V1.2 [DNN+NeuroSim V1.3](https://github.com/neurosim/DNN_NeuroSim_V1.3)_**
 
 In V2.1, we currently only support Pytorch wrapper, where users are able to define **_network structures, parameter precisions and hardware non-ideal properties_**. With the integrated NeuroSim which takes real traces from wrapper, the framework can support hierarchical organization from device level to circuit level, to chip level and to algorithm level, enabling **_instruction-accurate evaluation on both accuracy and hardware performance of on-chip training accelerator_**.
 
