@@ -95,8 +95,8 @@ void HTree::Initialize(int _numRow, int _numCol, double _delaytolerance, double 
 		}
 	}
 	
-	widthInvN = repeaterSize * MIN_NMOS_SIZE * tech.featureSize;
-	widthInvP = repeaterSize * tech.pnSizeRatio * MIN_NMOS_SIZE * tech.featureSize;
+	widthInvN = MAX(1,repeaterSize) * MIN_NMOS_SIZE * tech.featureSize;
+	widthInvP = MAX(1,repeaterSize) * tech.pnSizeRatio * MIN_NMOS_SIZE * tech.featureSize;
 	
 	/*** define center point ***/
 	x_center = floor(log2((double) min(numRow, numCol)));
