@@ -693,6 +693,7 @@ double ProcessingUnitCalculatePerformance(SubArray *subArray, Technology& tech, 
 	}
 	*writeLatencyPeakWU = (*writeLatencyWU);
 	*writeDynamicEnergyPeakWU = (*writeDynamicEnergyWU);
+	return 0;
 }
 
 
