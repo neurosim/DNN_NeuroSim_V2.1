@@ -846,6 +846,7 @@ void TileCalculatePerformance(const vector<vector<double> > &newMemory, const ve
 		}
 		*leakage = PEleakage*numPE + accumulationNM->leakage + inputBufferNM->leakage + outputBufferNM->leakage;
 	}
+	return 0;
 }
 
 
