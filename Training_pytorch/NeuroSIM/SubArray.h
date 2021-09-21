@@ -178,8 +178,8 @@ public:
 	MultilevelSenseAmp           multilevelSenseAmp;
 	MultilevelSAEncoder          multilevelSAEncoder;
 	SarADC                       sarADC;
-	ShiftAdd                     shiftAdd;
-	
+	ShiftAdd                     shiftAddInput;
+	ShiftAdd                     shiftAddWeight;
 	/* Circuit modules for Transpose (BP) */
 	RowDecoder                   wlDecoderBP;
 	SwitchMatrix                 wlSwitchMatrixBP;
@@ -194,7 +194,8 @@ public:
 	MultilevelSenseAmp           multilevelSenseAmpBP;
 	MultilevelSAEncoder          multilevelSAEncoderBP;
 	SarADC                       sarADCBP;
-	ShiftAdd                     shiftAddBP;
+	ShiftAdd               	     shiftAddBPInput;
+	ShiftAdd                     shiftAddBPWeight;
 };
 
 #endif /* SUBARRAY_H_ */
