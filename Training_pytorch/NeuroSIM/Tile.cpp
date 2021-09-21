@@ -116,13 +116,13 @@ void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
     
 	if (param->novelMapping) {
 		if (param->parallelRead) {
-			accumulationNM->Initialize(numPENM, ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)), 
+			accumulationNM->Initialize(numPENM, ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)), 
 									ceil((double)numPENM*(double)param->numColSubArray/(double)param->numColMuxed));
 			if (!param->chipActivation) {
 				if (param->reLu) {
 					reLuNM->Initialize(ceil((double)peSizeNM*(double)param->numColSubArray/(double)param->numColMuxed), param->numBitInput, param->clkFreq);
 				} else {
-					sigmoidNM->Initialize(false, param->numBitInput, ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray))+ceil((double)log2((double)numPENM)), 
+					sigmoidNM->Initialize(false, param->numBitInput, ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray))+ceil((double)log2((double)numPENM)), 
 									ceil((double)numPENM*(double)param->numColSubArray/(double)param->numColMuxed), param->clkFreq);
 				}
 				numOutBufferCore = ceil((param->numBitInput*numPENM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
@@ -133,23 +133,23 @@ void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
 					outputBufferNM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 				}									
 			} else {
-				numOutBufferCore = ceil(((ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
-				if (((ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed) < (param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol)) {
-					outputBufferNM->Initialize((ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed, 
-									(ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM, 
+				numOutBufferCore = ceil(((ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
+				if (((ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed) < (param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol)) {
+					outputBufferNM->Initialize((ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed, 
+									(ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM, 
 									1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 				} else {
 					outputBufferNM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 				}
 			}
 		} else {
-			accumulationNM->Initialize(numPENM, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)), 
+			accumulationNM->Initialize(numPENM, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)), 
 									ceil(numPENM*(double)param->numColSubArray/(double)param->numColMuxed));
 			if (!param->chipActivation) {
 				if (param->reLu) {
 					reLuNM->Initialize(ceil((double)peSizeNM*(double)param->numColSubArray/(double)param->numColMuxed), param->numBitInput, param->clkFreq);
 				} else {
-					sigmoidNM->Initialize(false, param->numBitInput, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray))+ceil((double)log2((double)numPENM)), 
+					sigmoidNM->Initialize(false, param->numBitInput, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray))+ceil((double)log2((double)numPENM)), 
 									ceil(numPENM*(double)param->numColSubArray/(double)param->numColMuxed), param->clkFreq);
 				}
 				numOutBufferCore = ceil((param->numBitInput*numPENM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
@@ -159,10 +159,10 @@ void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
 					outputBufferNM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 				}
 			} else {
-				numOutBufferCore = ceil(((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
-				if (((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed) < (param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol)) {
-					outputBufferNM->Initialize((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed, 
-									(ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM, 
+				numOutBufferCore = ceil(((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
+				if (((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed) < (param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol)) {
+					outputBufferNM->Initialize((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM*param->numColSubArray/param->numColMuxed, 
+									(ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeNM/(double)param->numRowSubArray)))*numPENM, 
 									1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 				} else {
 					outputBufferNM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
@@ -179,13 +179,13 @@ void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
 		hTreeNM->Initialize(ceil(sqrt((double)numPENM)), ceil(sqrt((double)numPENM)), param->localBusDelayTolerance, ceil(sqrt((double)numPENM))*param->numRowSubArray);
 	} 
 	if (param->parallelRead) {
-		accumulationCM->Initialize(numPECM, ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)), 
+		accumulationCM->Initialize(numPECM, ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)), 
 								ceil((double)numPECM*(double)param->numColSubArray/(double)param->numColMuxed));
 		if (!param->chipActivation) {
 			if (param->reLu) {
 				reLuCM->Initialize(ceil((double)peSizeCM*(double)param->numColSubArray/(double)param->numColMuxed), param->numBitInput, param->clkFreq);
 			} else {
-				sigmoidCM->Initialize(false, param->numBitInput, ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray))+ceil((double)log2((double)numPECM)), 
+				sigmoidCM->Initialize(false, param->numBitInput, ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray))+ceil((double)log2((double)numPECM)), 
 								ceil((double)numPECM*(double)param->numColSubArray/(double)param->numColMuxed), param->clkFreq);
 			}
 			numOutBufferCore = ceil((param->numBitInput*numPECM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
@@ -196,23 +196,23 @@ void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
 				outputBufferCM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 			}									
 		} else {
-			numOutBufferCore = ceil(((ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
-			if (((ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed) < (param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol)) {
-				outputBufferCM->Initialize((ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed, 
-								(ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM, 
+			numOutBufferCore = ceil(((ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
+			if (((ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed) < (param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol)) {
+				outputBufferCM->Initialize((ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed, 
+								(ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM, 
 								1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 			} else {
 				outputBufferCM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 			}
 		}
 	} else {
-		accumulationCM->Initialize(numPECM, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)), 
+		accumulationCM->Initialize(numPECM, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)), 
 								ceil(numPECM*(double)param->numColSubArray/(double)param->numColMuxed));
 		if (!param->chipActivation) {
 			if (param->reLu) {
 				reLuCM->Initialize(ceil((double)peSizeCM*(double)param->numColSubArray/(double)param->numColMuxed), param->numBitInput, param->clkFreq);
 			} else {
-				sigmoidCM->Initialize(false, param->numBitInput, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray))+ceil((double)log2((double)numPECM)), 
+				sigmoidCM->Initialize(false, param->numBitInput, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray))+ceil((double)log2((double)numPECM)), 
 								ceil(numPECM*(double)param->numColSubArray/(double)param->numColMuxed), param->clkFreq);
 			}
 			numOutBufferCore = ceil((param->numBitInput*numPECM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
@@ -222,10 +222,10 @@ void TileInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
 				outputBufferCM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 			}
 		} else {
-			numOutBufferCore = ceil(((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
-			if (((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed) < (param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol)) {
-				outputBufferCM->Initialize((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed, 
-								(ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM, 
+			numOutBufferCore = ceil(((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed)/(param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol));
+			if (((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed) < (param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol)) {
+				outputBufferCM->Initialize((ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM*param->numColSubArray/param->numColMuxed, 
+								(ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)peSizeCM/(double)param->numRowSubArray)))*numPECM, 
 								1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
 			} else {
 				outputBufferCM->Initialize((param->tileBufferCoreSizeRow*param->tileBufferCoreSizeCol), param->tileBufferCoreSizeCol, 1, param->unitLengthWireResistance, param->clkFreq, param->peBufferType);
@@ -496,8 +496,8 @@ void TileCalculatePerformance(const vector<vector<double> > &newMemory, const ve
 				
 				// whether go through accumulation?
 				if (ceil((double)weightMatrixRow/(double)peSize) > 1) {
-					accumulationCM->CalculateLatency((int)(numInVector/param->numBitInput)*param->numColMuxed, ceil((double)weightMatrixRow/(double)peSize), 0);
-					accumulationCM->CalculatePower((int)(numInVector/param->numBitInput)*param->numColMuxed, ceil((double)weightMatrixRow/(double)peSize));
+					accumulationCM->CalculateLatency((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse), ceil((double)weightMatrixRow/(double)peSize), 0);
+					accumulationCM->CalculatePower((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse), ceil((double)weightMatrixRow/(double)peSize));
 					*readLatency += accumulationCM->readLatency; 
 					*readLatencyAG += accumulationCM->readLatency*((param->trainingEstimation)&&(layerNumber!=0)==true? 1:0); 
 					*readLatencyPeakFW += accumulationCM->readLatency; 
@@ -569,8 +569,8 @@ void TileCalculatePerformance(const vector<vector<double> > &newMemory, const ve
 					*coreEnergyOther += peEnergyOther;
 				}
 			}
-			accumulationCM->CalculateLatency((int)(numInVector/param->numBitInput)*param->numColMuxed, numPE, 0);
-			accumulationCM->CalculatePower((int)(numInVector/param->numBitInput)*param->numColMuxed, numPE);
+			accumulationCM->CalculateLatency((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse), numPE, 0);
+			accumulationCM->CalculatePower((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse), numPE);
 			*readLatency += accumulationCM->readLatency;
 			*readLatencyAG += accumulationCM->readLatency*((param->trainingEstimation)&&(layerNumber!=0)==true? 1:0);
 			*readLatencyPeakFW += accumulationCM->readLatency;
@@ -585,8 +585,8 @@ void TileCalculatePerformance(const vector<vector<double> > &newMemory, const ve
 		double numBitToLoadOut, numBitToLoadIn;								 
 		if (!param->chipActivation) {
 			if (param->reLu) {
-				reLuCM->CalculateLatency((int)(numInVector/param->numBitInput)*param->numColMuxed/reLuCM->numUnit);
-				reLuCM->CalculatePower((int)(numInVector/param->numBitInput)*param->numColMuxed/reLuCM->numUnit);
+				reLuCM->CalculateLatency((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse)/reLuCM->numUnit);
+				reLuCM->CalculatePower((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse)/reLuCM->numUnit);
 				*readLatency += reLuCM->readLatency;
 				*readDynamicEnergy += reLuCM->readDynamicEnergy;
 				*readLatencyPeakFW += reLuCM->readLatency;
@@ -598,8 +598,8 @@ void TileCalculatePerformance(const vector<vector<double> > &newMemory, const ve
 				outputBufferCM->CalculateLatency(outputBufferCM->interface_width, numBitToLoadIn/outputBufferCM->interface_width, outputBufferCM->interface_width, numBitToLoadIn/outputBufferCM->interface_width);
 				outputBufferCM->CalculatePower(outputBufferCM->interface_width, numBitToLoadIn/outputBufferCM->interface_width, outputBufferCM->interface_width, numBitToLoadIn/outputBufferCM->interface_width);
 			} else {
-				sigmoidCM->CalculateLatency((int)(numInVector/param->numBitInput)*param->numColMuxed/sigmoidCM->numEntry);
-				sigmoidCM->CalculatePower((int)(numInVector/param->numBitInput)*param->numColMuxed/sigmoidCM->numEntry);
+				sigmoidCM->CalculateLatency((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse)/sigmoidCM->numEntry);
+				sigmoidCM->CalculatePower((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse)/sigmoidCM->numEntry);
 				*readLatency += sigmoidCM->readLatency;
 				*readDynamicEnergy += sigmoidCM->readDynamicEnergy;
 				*readLatencyPeakFW += sigmoidCM->readLatency;
@@ -738,8 +738,8 @@ void TileCalculatePerformance(const vector<vector<double> > &newMemory, const ve
 		
 		*writeDynamicEnergyWU *= (speedUpRow*speedUpCol);
 		
-		accumulationNM->CalculateLatency((int)(numInVector/param->numBitInput)*param->numColMuxed, numPE, 0);
-		accumulationNM->CalculatePower((int)(numInVector/param->numBitInput)*param->numColMuxed, numPE);
+		accumulationNM->CalculateLatency((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse), numPE, 0);
+		accumulationNM->CalculatePower((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse), numPE);
 		*readLatency += accumulationNM->readLatency;
 		*readLatencyAG += accumulationNM->readLatency*((param->trainingEstimation)&&(layerNumber!=0)==true? 1:0);
 		*readDynamicEnergy += accumulationNM->readDynamicEnergy;
@@ -760,8 +760,8 @@ void TileCalculatePerformance(const vector<vector<double> > &newMemory, const ve
 		
 		if (!param->chipActivation) {
 			if (param->reLu) {
-				reLuNM->CalculateLatency((int)(numInVector/param->numBitInput)*param->numColMuxed/reLuNM->numUnit);
-				reLuNM->CalculatePower((int)(numInVector/param->numBitInput)*param->numColMuxed/reLuNM->numUnit);
+				reLuNM->CalculateLatency((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse)/reLuNM->numUnit);
+				reLuNM->CalculatePower((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse)/reLuNM->numUnit);
 				*readLatency += reLuNM->readLatency;
 				*readDynamicEnergy += reLuNM->readDynamicEnergy;
 				*readLatencyPeakFW += reLuNM->readLatency;
@@ -773,8 +773,8 @@ void TileCalculatePerformance(const vector<vector<double> > &newMemory, const ve
 				outputBufferNM->CalculateLatency(outputBufferNM->interface_width, numBitToLoadIn/outputBufferNM->interface_width, outputBufferNM->interface_width, numBitToLoadIn/outputBufferNM->interface_width);
 				outputBufferNM->CalculatePower(outputBufferNM->interface_width, numBitToLoadIn/outputBufferNM->interface_width, outputBufferNM->interface_width, numBitToLoadIn/outputBufferNM->interface_width);
 			} else {
-				sigmoidNM->CalculateLatency((int)(numInVector/param->numBitInput)*param->numColMuxed/sigmoidNM->numEntry);
-				sigmoidNM->CalculatePower((int)(numInVector/param->numBitInput)*param->numColMuxed/sigmoidNM->numEntry);
+				sigmoidNM->CalculateLatency((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse)/sigmoidNM->numEntry);
+				sigmoidNM->CalculatePower((int)(numInVector/param->numBitInput)*ceil(param->numColMuxed/param->numColPerSynapse)/sigmoidNM->numEntry);
 				*readLatency += sigmoidNM->readLatency;
 				*readDynamicEnergy += sigmoidNM->readDynamicEnergy;
 				*readLatencyPeakFW += sigmoidNM->readLatency;
