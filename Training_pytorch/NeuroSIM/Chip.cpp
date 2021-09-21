@@ -457,16 +457,16 @@ void ChipInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
 				maxAddFromSubArray *= (netStructure.size()+1);
 			}
 			if (param->parallelRead) {
-				Gaccumulation->Initialize((int) maxTileAdded, ceil((double) log2((double) param->levelOutput))+param->numBitInput+1+ceil((double) log2((double) maxAddFromSubArray)), 
+				Gaccumulation->Initialize((int) maxTileAdded, ceil((double) log2((double) param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double) log2((double) maxAddFromSubArray)), 
 										ceil((double) maxThroughputTile/(double) param->numColMuxed));
 			} else {
-				Gaccumulation->Initialize((int) maxTileAdded, ceil((double) log2((double) param->numRowSubArray)+(double) param->cellBit-1)+param->numBitInput+1+ceil((double) log2((double) maxAddFromSubArray)), 
+				Gaccumulation->Initialize((int) maxTileAdded, ceil((double) log2((double) param->numRowSubArray)+(double) param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double) log2((double) maxAddFromSubArray)), 
 										ceil((double) maxThroughputTile/(double) param->numColMuxed));
 			}
 			if (param->reLu) {
 				GreLu->Initialize(ceil((double) maxThroughputTile/(double) param->numColMuxed), param->numBitInput, param->clkFreq);
 			} else {
-				Gsigmoid->Initialize(false, param->numBitInput, ceil((double) log2((double) param->numRowSubArray)+(double) param->cellBit-1)+param->numBitInput+1+log2((double) maxAddFromSubArray)+ceil((double) log2((double) maxTileAdded)), 
+				Gsigmoid->Initialize(false, param->numBitInput, ceil((double) log2((double) param->numRowSubArray)+(double) param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+log2((double) maxAddFromSubArray)+ceil((double) log2((double) maxTileAdded)), 
 										ceil((double) maxThroughputTile/(double) param->numColMuxed), param->clkFreq);
 			}
 		} else {
@@ -476,16 +476,16 @@ void ChipInitialize(InputParameter& inputParameter, Technology& tech, MemCell& c
 				maxAddFromSubArray *= (netStructure.size()+1);
 			}
 			if (param->parallelRead) {
-				Gaccumulation->Initialize((int) maxTileAdded, ceil((double)log2((double)param->levelOutput))+param->numBitInput+1+ceil((double)log2((double)maxAddFromSubArray)), 
+				Gaccumulation->Initialize((int) maxTileAdded, ceil((double)log2((double)param->levelOutput))+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)maxAddFromSubArray)), 
 										ceil((double)(desiredTileSizeCM)/(double)param->numColMuxed));
 			} else {
-				Gaccumulation->Initialize((int) maxTileAdded, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+1+ceil((double)log2((double)maxAddFromSubArray)), 
+				Gaccumulation->Initialize((int) maxTileAdded, ceil((double)log2((double)param->numRowSubArray)+(double)param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+ceil((double)log2((double)maxAddFromSubArray)), 
 										ceil((double)(desiredTileSizeCM)/(double)param->numColMuxed));
 			}
 			if (param->reLu) {
 				GreLu->Initialize(ceil((double)(desiredTileSizeCM)/(double)param->numColMuxed), param->numBitInput, param->clkFreq);
 			} else {
-				Gsigmoid->Initialize(false, param->numBitInput, ceil((double) log2((double) param->numRowSubArray)+(double) param->cellBit-1)+param->numBitInput+1+log2((double) maxAddFromSubArray)+ceil((double) log2((double) maxTileAdded)), 
+				Gsigmoid->Initialize(false, param->numBitInput, ceil((double) log2((double) param->numRowSubArray)+(double) param->cellBit-1)+param->numBitInput+param->numColPerSynapse+1+log2((double) maxAddFromSubArray)+ceil((double) log2((double) maxTileAdded)), 
 										ceil((double) (desiredTileSizeCM)/(double) param->numColMuxed), param->clkFreq);
 			}
 		}
