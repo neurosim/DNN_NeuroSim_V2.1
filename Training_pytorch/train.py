@@ -16,15 +16,16 @@ import numpy as np
 import csv
 from subprocess import call
 from modules.quantization_cpu_np_infer import QConv2d,QLinear
+import tempfile
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR-X Example')
 parser.add_argument('--type', default='cifar10', help='dataset for training')
-parser.add_argument('--batch_size', type=int, default=200, help='input batch size for training (default: 64)')
-parser.add_argument('--epochs', type=int, default=257, help='number of epochs to train (default: 10)')
+parser.add_argument('--batch_size', type=int, default=200, help='input batch size for training (default: 200)')
+parser.add_argument('--epochs', type=int, default=32, help='number of epochs to train (default: 32)')
 parser.add_argument('--grad_scale', type=float, default=1, help='learning rate for wage delta calculation')
-parser.add_argument('--seed', type=int, default=117, help='random seed (default: 1)')
-parser.add_argument('--log_interval', type=int, default=100,  help='how many batches to wait before logging training status')
-parser.add_argument('--test_interval', type=int, default=1,  help='how many epochs to wait before another test')
+parser.add_argument('--seed', type=int, default=117, help='random seed (default: 117)')
+parser.add_argument('--log_interval', type=int, default=100,  help='how many batches to wait before logging training status default = 100')
+parser.add_argument('--test_interval', type=int, default=1,  help='how many epochs to wait before another test (default = 1)')
 parser.add_argument('--logdir', default='log/default', help='folder to save to the log')
 parser.add_argument('--decreasing_lr', default='200,250', help='decreasing strategy')
 parser.add_argument('--wl_weight', type = int, default=2)
@@ -104,7 +105,7 @@ if args.cuda:
 
 # data loader and model
 assert args.type in ['cifar10', 'cifar100'], args.type
-train_loader, test_loader = dataset.get10(batch_size=args.batch_size, num_workers=1)
+train_loader, test_loader = dataset.get10(batch_size=args.batch_size, num_workers=1, data_root=os.path.join(tempfile.gettempdir(), os.path.join('public_dataset','pytorch')))
 model = model.cifar10(args = args, logger=logger)
 if args.cuda:
     model.cuda()
@@ -251,6 +252,7 @@ try:
                     hook.remove_hook_list(hook_handle_list)
             
             test_loss = test_loss / len(test_loader) # average over number of mini-batch
+            test_loss = test_loss.cpu().data.numpy()
             acc = 100. * correct / len(test_loader.dataset)
             logger('\tEpoch {} Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
                 epoch, test_loss, correct, len(test_loader.dataset), acc))

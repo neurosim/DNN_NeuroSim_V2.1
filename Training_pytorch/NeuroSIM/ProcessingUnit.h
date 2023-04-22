@@ -61,7 +61,7 @@ vector<vector<double> > CopySubInput(const vector<vector<double> > &orginal, int
 vector<double> GetInputVector(const vector<vector<double> > &input, int numInput, double *activityRowRead);
 vector<double> GetColumnResistance(const vector<double> &input, const vector<vector<double> > &weight, MemCell& cell, bool parallelRead, double resCellAccess);
 vector<double> GetRowResistance(const vector<double> &input, const vector<vector<double> > &weight, MemCell& cell, bool parallelRead, double resCellAccess);
-double GetWriteUpdateEstimation(SubArray *subArray, Technology& tech, MemCell& cell, const vector<vector<double> > &newMemory, const vector<vector<double> > &oldMemory, double *activityColWrite, double *activityRowWrite,
+void GetWriteUpdateEstimation(SubArray *subArray, Technology& tech, MemCell& cell, const vector<vector<double> > &newMemory, const vector<vector<double> > &oldMemory, double *activityColWrite, double *activityRowWrite,
 								int *numWritePulseAVG, int *totalNumWritePulse, double *writeDynamicEnergyArray);
 
 #endif /* PROCESSINGUNIT_H_ */
