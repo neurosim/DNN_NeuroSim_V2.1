@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from utee import wage_initializer,wage_quantizer
-from torch._jit_internal import weak_script_method
 import numpy as np
 
 class QConv2d(nn.Conv2d):
@@ -35,7 +34,6 @@ class QConv2d(nn.Conv2d):
         self.name = name
         self.scale  = wage_initializer.wage_init_(self.weight, self.wl_weight, factor=1.0)
 
-    @weak_script_method
     def forward(self, input):
         
         weight1 = self.weight * self.scale + (self.weight - self.weight * self.scale).detach()
@@ -202,7 +200,6 @@ class QLinear(nn.Linear):
         self.name = name
         self.scale  = wage_initializer.wage_init_(self.weight, self.wl_weight, factor=1.0)
 
-    @weak_script_method
     def forward(self, input):
 
         weight1 = self.weight * self.scale + (self.weight - self.weight * self.scale).detach()

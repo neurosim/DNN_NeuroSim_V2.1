@@ -36,20 +36,20 @@ def write_matrix_weight(input_matrix,filename):
     np.savetxt(filename, weight_matrix, delimiter=",",fmt='%10.5f')
 
 def write_matrix_activation_conv(input_matrix,fill_dimension,length,filename):
-    filled_matrix_b = np.zeros([input_matrix.shape[2],input_matrix.shape[1]*length],dtype=np.str)
+    filled_matrix_b = np.zeros([input_matrix.shape[2],input_matrix.shape[1]*length],dtype=str)
     filled_matrix_bin,scale = dec2bin(input_matrix[0,:],length)
     for i,b in enumerate(filled_matrix_bin):
         filled_matrix_b[:,i::length] =  b.transpose()
-    activity = np.sum(filled_matrix_b.astype(np.float), axis=None)/np.size(filled_matrix_b)
+    activity = np.sum(filled_matrix_b.astype(float), axis=None)/np.size(filled_matrix_b)
     np.savetxt(filename, filled_matrix_b, delimiter=",",fmt='%s')
     return activity
 
 def write_matrix_activation_fc(input_matrix,fill_dimension,length,filename):
-    filled_matrix_b = np.zeros([input_matrix.shape[1],length],dtype=np.str)
+    filled_matrix_b = np.zeros([input_matrix.shape[1],length],dtype=str)
     filled_matrix_bin,scale = dec2bin(input_matrix[0,:],length)
     for i,b in enumerate(filled_matrix_bin):
         filled_matrix_b[:,i] =  b
-    activity = np.sum(filled_matrix_b.astype(np.float), axis=None)/np.size(filled_matrix_b)
+    activity = np.sum(filled_matrix_b.astype(float), axis=None)/np.size(filled_matrix_b)
     np.savetxt(filename, filled_matrix_b, delimiter=",",fmt='%s')
     return activity
 
